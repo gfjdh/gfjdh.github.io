@@ -1,12 +1,12 @@
 :root {
-  --red-0: #f00;
-  --red-1: #ff5252;
-  --red-2: #ff7c7c;
-  --red-3: #ffafaf;
-  --red-4: #ffd0d0;
-  --red-5: #ffe4e4;
-  --red-5-5: #ffecec;
-  --red-6: #fff3f3;
+  --red-0: #800080;
+  --red-1: #9932cc;
+  --red-2: #ba55d3;
+  --red-3: #da70d6;
+  --red-4: #ee82ee;
+  --red-5: #f3e5f5;
+  --red-5-5: #f8bbd0;
+  --red-6: #e1bee7;
   --color-default-font: #000;
   --color-default: #555;
   --color-grey: #999;
@@ -23,9 +23,9 @@
   --color-sticky: #ffecec;
   --color-h2-border: #eee;
   --color-meta-shadow: --var(--red-6);
-  --color-hover-shadow: rgba(150,150,150,0.1);
-  --color-h2-after: rgba(255,0,0,0.6);
-  --color-h2-after-shadow: rgba(255,78,106,0.7);
+  --color-hover-shadow: rgba(106,13,173,0.1);
+  --color-h2-after: rgba(153,50,204,0.6);
+  --color-h2-after-shadow: rgba(153,50,204,0.7);
   --highlight-nav: #e6e6e6;
   --highlight-scrollbar: #d6d6d6;
   --highlight-background: #f7f7f7;
@@ -45,14 +45,14 @@
   --cursor-text: url("../images/cursor/reimu-cursor-text.cur"), text;
 }
 [data-theme="dark"]:root {
-  --red-0: #ff5252;
-  --red-1: #ff5252;
-  --red-2: #ff7c7c;
-  --red-3: #ffafaf;
-  --red-4: rgba(255,208,208,0.5);
-  --red-5: rgba(255,228,228,0.2);
-  --red-5-5: rgba(255,236,236,0.1);
-  --red-6: rgba(255,243,243,0.2);
+  --red-0: #800080;
+  --red-1: #9932cc;
+  --red-2: #ba55d3;
+  --red-3: #da70d6;
+  --red-4: rgba(238,130,238,0.5);
+  --red-5: rgba(243,229,245,0.2);
+  --red-5-5: rgba(248,187,208,0.1);
+  --red-6: rgba(225,190,231,0.2);
   --color-default-font: #999;
   --color-default: #999;
   --color-grey: #999;
@@ -67,11 +67,11 @@
   --color-mobile-nav-background: #21252b;
   --color-wrap: #272b30;
   --color-sticky: #ffecec;
-  --color-h2-border: #47474a;
+  --color-h2-border: #6a0dad;
   --color-meta-shadow: rgba(0,0,0,0.2);
   --color-hover-shadow: rgba(0,0,0,0.2);
-  --color-h2-after: #ff5252;
-  --color-h2-after-shadow: rgba(255,78,106,0.7);
+  --color-h2-after: #9932cc;
+  --color-h2-after-shadow: rgba(153,50,204,0.7);
   --highlight-nav: #2e353f;
   --highlight-scrollbar: #454d59;
   --highlight-background: #22272e;
@@ -570,7 +570,6 @@ html,
 body,
 #container {
   height: 100%;
-  cursor: var(--cursor-default);
 }
 body {
   background: var(--color-background);
@@ -583,23 +582,6 @@ body {
 body ::selection {
   background: var(--red-1);
   color: #fff;
-}
-a {
-  cursor: var(--cursor-pointer) !important;
-}
-.site-search input {
-  cursor: var(--cursor-text) !important;
-}
-#main span,
-#main p,
-#main code,
-#main kbd,
-#main input,
-#main textarea {
-  cursor: var(--cursor-text) !important;
-}
-#main nav span {
-  cursor: var(--cursor-default) !important;
 }
 .outer {
   max-width: 1220px;
@@ -854,7 +836,7 @@ a {
   height: 14px;
   padding: 20px 15px;
   position: relative;
-  cursor: var(--cursor-pointer);
+  cursor: pointer;
 }
 [data-theme="dark"] .main-nav-link,
 [data-theme="dark"] .main-nav-icon,
@@ -883,7 +865,7 @@ a {
   background: url("../images/taichi.png") no-repeat center/80%;
   transform: rotate(0deg);
   transition: transform 1s ease;
-  cursor: var(--cursor-pointer);
+  cursor: pointer;
 }
 #main-nav-toggle {
   display: none;
@@ -2115,7 +2097,7 @@ pre .javascript .function {
   margin: 5px;
   z-index: 1;
   filter: invert(50%);
-  cursor: var(--cursor-pointer);
+  cursor: pointer;
   color: #fff;
 }
 .code-lang {
@@ -2124,13 +2106,13 @@ pre .javascript .function {
   font-weight: bold;
   z-index: 1;
   filter: invert(50%);
-  cursor: var(--cursor-pointer);
+  cursor: pointer;
 }
 .code-expand {
   margin: 5px;
   filter: invert(50%);
   z-index: 1;
-  cursor: var(--cursor-pointer);
+  cursor: pointer;
   transition: all 0.3s;
   transform: rotate(0deg);
   color: #fff;
@@ -2358,7 +2340,7 @@ pre .javascript .function {
   font: 20px bold;
   text-transform: uppercase;
   vertical-align: middle;
-  cursor: var(--cursor-pointer);
+  cursor: pointer;
   padding-left: 15px;
   top: 8px;
 }
@@ -2389,7 +2371,6 @@ pre .javascript .function {
 }
 .reimu-powered {
   float: right;
-  cursor: var(--cursor-default) !important;
 }
 .reimu-powered img {
   display: inline-block;
