@@ -34,7 +34,7 @@
 <meta property="og:description" content="三个插件共同构成的，带有一定货币属性的功能体系签到：p-qiandao涩图：p-setu擦弹：p-graze 以下是个人从零开始搭建bot到开始自己开发插件的感想和碎碎念 2023年10月1日，国庆节。国庆假期第一天，在宿舍里百无聊赖的我心血来潮，上网搜索了qq机器人搭建，并且进入了koishi论坛，论坛里详细的教程和blocky的零代码开发功能让我眼前一亮。当时还没有官方的开放平台，我跟着lih">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2024-08-11T19:02:33.425Z">
-<meta property="article:modified_time" content="2024-08-12T16:01:48.971Z">
+<meta property="article:modified_time" content="2024-09-04T03:35:08.516Z">
 <meta property="article:author" content="清水尚辉">
 <meta name="twitter:card" content="summary">
   
@@ -222,7 +222,7 @@
 <li>为什么不用OpenAi：gpt固然好，但是门槛真是高，用官方接口的话注册账号是问题，用第三方接口的话价格又不便宜，简单的对话没必要要求那么高，所以我选择国产模型。</li>
 </ul>
 <p>接口大部分是要收费的，但是我偶然间找到了一个可以免费使用一个月的接口，并且看上去性能还不错，于是着手开发接入它的插件。<br>说是开发，其实是魔改其他人的插件，<del>惨遭我毒手的是</del> <a target="_blank" rel="noopener" href="https://github.com/initialencounter/2022-12-24/tree/neat/plugins/AI/davinci-003#readme">davinci-003</a>插件，目前经过我的改造已经可以使用了，但是我不确定这种插件能不能发布在插件市场，而且还有很多bug和设想的功能没搞完。</p>
-<h2 id="未来的计划？"><a href="#未来的计划？" class="headerlink" title="未来的计划？"></a>未来的计划？</h2><p>1.我想让觉有长期记忆。<br>具体实现思路基本是天马行空，而且以我的码力遥不可及<br>2.自我保护功能<br>比如检测到屏蔽词拉黑，被禁言退群之类的，目前没有针对我使用的接入方式的相关插件<del>可能是不支持？</del>。</p>
+<h2 id="未来的计划？"><a href="#未来的计划？" class="headerlink" title="未来的计划？"></a>未来的计划？</h2><p>1.我想让觉有长期记忆。——已实现<br>2.自我保护功能<br>比如检测到屏蔽词拉黑，被禁言退群之类的，目前没有针对我使用的接入方式的相关插件<del>可能是不支持？</del>。</p>
 <h2 id="最后来一些自己总结的小教训"><a href="#最后来一些自己总结的小教训" class="headerlink" title="最后来一些自己总结的小教训"></a>最后来一些自己总结的小教训</h2><p><strong>实例爆炸了如何抢救？</strong>：勤备份比什么都强，但是如果已经无法挽回，在双清之前把data文件夹里的koishi.db抢救出来是个好选择，至少可以保住数据库里的数据，插件什么的重新安装就好。<br><strong>如何在本地安装自己编写的插件？</strong>：按标准格式命名文件夹然后把lib文件夹，package.json和readme丢进去，再把这个文件夹放进node_modules，最后重启实例，在插件全局设置左上角添加插件即可。但是注意，这么做属于不安全行为，请考虑清楚后果再操作。</p>
 <p>暂时先这些，以后这个帖子可能长期更新</p>
 
@@ -274,7 +274,7 @@
       
         
         
-          <img data-src="/covers/264.jpg" data-sizes="auto" alt="Hello World" class="lazyload">
+          <img data-src="/covers/809.jpg" data-sizes="auto" alt="Hello World" class="lazyload">
         
       
       <a href="/2024/08/04/hello-world/"></a>
@@ -316,7 +316,7 @@
       <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
   <img data-src="/avatar/avatar.webp" data-sizes="auto" alt="清水尚辉" class="lazyload">
   <div class="sidebar-author-name">清水尚辉</div>
-  <div class="sidebar-description">爱发电：afdian.com/a/gfjdh</div>
+  <div class="sidebar-description">觉厨</div>
 </div>
 <div class="sidebar-state">
   <div class="sidebar-state-article">
@@ -447,7 +447,7 @@
       <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
   <img data-src="/avatar/avatar.webp" data-sizes="auto" alt="清水尚辉" class="lazyload">
   <div class="sidebar-author-name">清水尚辉</div>
-  <div class="sidebar-description">爱发电：afdian.com/a/gfjdh</div>
+  <div class="sidebar-description">觉厨</div>
 </div>
 <div class="sidebar-state">
   <div class="sidebar-state-article">
