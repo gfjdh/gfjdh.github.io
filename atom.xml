@@ -6,7 +6,7 @@
   <link href="http://gfjdh.cn/atom.xml" rel="self"/>
   
   <link href="http://gfjdh.cn/"/>
-  <updated>2025-09-04T11:58:11.328Z</updated>
+  <updated>2025-09-04T13:59:33.356Z</updated>
   <id>http://gfjdh.cn/</id>
   
   <author>
@@ -15,6 +15,27 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>一些前端实现的作业项目</title>
+    <link href="http://gfjdh.cn/2025/09/04/vite/"/>
+    <id>http://gfjdh.cn/2025/09/04/vite/</id>
+    <published>2025-09-04T13:13:03.280Z</published>
+    <updated>2025-09-04T13:59:33.356Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="一些前端实现的作业项目"><a href="#一些前端实现的作业项目" class="headerlink" title="一些前端实现的作业项目"></a>一些前端实现的作业项目</h1><ul><li>本来是os课设的作业，但是我刚好想用vite来做，很适合集成到这里。</li><li>学会了使用iframe来网页嵌入网页，感觉这玩意很有用，也许可以嵌入小游戏。</li></ul><h2 id="1-电梯调度模拟"><a href="#1-电梯调度模拟" class="headerlink" title="1.电梯调度模拟"></a>1.电梯调度模拟</h2><ul><li>模拟了一栋大楼的电梯内置运行算法，要求最高效地响应运输需求。</li></ul><!DOCTYPE html><html><head>    <style>        body, html {            margin: 0;            padding: 0;            height: 100%;            overflow: hidden;        }        #project-frame {            width: 100%;            height: 100vh;            border: none;        }        .back-button {            position: fixed;            top: 20px;            left: 20px;            z-index: 1000;            background: rgba(255, 255, 255, 0.8);            padding: 10px 15px;            border-radius: 5px;            text-decoration: none;            color: #333;            font-family: Arial, sans-serif;        }    </style></head><body>    <iframe id="project-frame" src="/projects/elevator-simulator/index.html" frameborder="10" allowfullscreen>    </iframe></body></html><h2 id="2-内存管理模拟"><a href="#2-内存管理模拟" class="headerlink" title="2.内存管理模拟"></a>2.内存管理模拟</h2><ul><li>模拟了计算机进行多个内存任务时的内存变化，有多种算法和模式。</li></ul><!DOCTYPE html><html><head>    <style>        body, html {            margin: 0;            padding: 0;            height: 100%;            overflow: hidden;        }        #project-frame {            width: 100%;            height: 100vh;            border: none;        }        .back-button {            position: fixed;            top: 20px;            left: 20px;            z-index: 1000;            background: rgba(255, 255, 255, 0.8);            padding: 10px 15px;            border-radius: 5px;            text-decoration: none;            color: #333;            font-family: Arial, sans-serif;        }    </style></head><body>    <iframe id="project-frame" src="/projects/RamManager/index.html" frameborder="10" allowfullscreen>    </iframe></body></html><h2 id="2-文件管理模拟"><a href="#2-文件管理模拟" class="headerlink" title="2.文件管理模拟"></a>2.文件管理模拟</h2><ul><li>模拟了操作系统进行文件管理的过程。</li></ul><!DOCTYPE html><html><head>    <style>        body, html {            margin: 0;            padding: 0;            height: 100%;            overflow: hidden;        }        #project-frame {            width: 100%;            height: 100vh;            border: none;        }        .back-button {            position: fixed;            top: 20px;            left: 20px;            z-index: 1000;            background: rgba(255, 255, 255, 0.8);            padding: 10px 15px;            border-radius: 5px;            text-decoration: none;            color: #333;            font-family: Arial, sans-serif;        }    </style></head><body>    <iframe id="project-frame" src="/projects/file-manager/index.html" frameborder="10" allowfullscreen>    </iframe></body></html>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;h1 id=&quot;一些前端实现的作业项目&quot;&gt;&lt;a href=&quot;#一些前端实现的作业项目&quot; class=&quot;headerlink&quot; title=&quot;一些前端实现的作业项目&quot;&gt;&lt;/a&gt;一些前端实现的作业项目&lt;/h1&gt;&lt;ul&gt;
+&lt;li&gt;本来是os课设的作业，但是我刚好想用vite来做，很适合</summary>
+      
+    
+    
+    
+    
+  </entry>
   
   <entry>
     <title>觉bot食用指南</title>
