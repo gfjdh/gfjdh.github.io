@@ -1,0 +1,1499 @@
+
+  <!DOCTYPE html>
+  <html lang="zh-CN"  
+    
+      data-theme-mode="auto"
+    
+  >
+  <head>
+  
+  <meta charset="utf-8">
+  
+
+  
+
+  
+
+  <script>window.REIMU_CONFIG = {};window.REIMU_CONFIG.icon_font = '4552607_4k4bc36ef96';window.REIMU_CONFIG.clipboard_tips = {"success":{"en":"Copy successfully (*^▽^*)","zh-CN":"复制成功 (*^▽^*)","zh-TW":"複製成功 (*^▽^*)","ja":"コピー成功 (*^▽^*)","pt-BR":"Copiado com sucesso (*^▽^*)"},"fail":{"en":"Copy failed (ﾟ⊿ﾟ)ﾂ","zh-CN":"复制失败 (ﾟ⊿ﾟ)ﾂ","zh-TW":"複製失敗 (ﾟ⊿ﾟ)ﾂ","ja":"コピー失敗 (ﾟ⊿ﾟ)ﾂ","pt-BR":"Falha ao copiar (ﾟ⊿ﾟ)ﾂ"},"copyright":{"enable":false,"count":50,"license_type":"by-nc-sa"}};window.REIMU_CONFIG.clipboard_tips.copyright.content = '本博客所有文章除特别声明外，均采用 BY-NC-SA 许可协议。转载请注明出处！';window.REIMU_CONFIG.code_block = {"expand":true};window.REIMU_CONFIG.base = 'https://gfjdh.github.io';</script>
+  
+  <title>
+    校园网突然连不上：一个 0x525、一次版本错乱，和一串连锁反应 |
+    
+    清水乡
+  </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  
+  
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin><link rel="preload" as="style" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CNoto%20Serif%20SC:400,400italic,700,700italic&display=swap"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CNoto%20Serif%20SC:400,400italic,700,700italic&display=swap" media="print" onload="this.media&#x3D;&#39;all&#39;">
+  
+  
+    <link rel="preload" href="//at.alicdn.com/t/c/font_4552607_4k4bc36ef96.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  
+  
+    
+<link rel="stylesheet" href="/css/loader.css">
+
+  
+  
+    <meta name="description" content="2026-11-25 记。一台 Windows 10 22H2 笔记本，WPA2-Enterprise 校园网突然认证失败，排查到最后发现根因跟网络一点关系都没有。  一、症状11 月 16 日下午开始，笔记本连不上学校 Wi-Fi（CAMPUS-WIFI）。  点连接，转一两秒，提示”无法连接到这个网络” 宿舍 Wi-Fi、手机热点都正常 密码肯定没改过，同一账号在手机上能用  CAMPUS-">
+<meta property="og:type" content="article">
+<meta property="og:title" content="校园网突然连不上：一个 0x525、一次版本错乱，和一串连锁反应">
+<meta property="og:url" content="https://gfjdh.github.io/2026/11/25/windows-8021x-0x525-rdsh/index.html">
+<meta property="og:site_name" content="清水乡">
+<meta property="og:description" content="2026-11-25 记。一台 Windows 10 22H2 笔记本，WPA2-Enterprise 校园网突然认证失败，排查到最后发现根因跟网络一点关系都没有。  一、症状11 月 16 日下午开始，笔记本连不上学校 Wi-Fi（CAMPUS-WIFI）。  点连接，转一两秒，提示”无法连接到这个网络” 宿舍 Wi-Fi、手机热点都正常 密码肯定没改过，同一账号在手机上能用  CAMPUS-">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-11-24T19:00:00.000Z">
+<meta property="article:modified_time" content="2026-11-24T19:08:15.588Z">
+<meta property="article:author" content="清水尚辉">
+<meta property="article:tag" content="Windows">
+<meta property="article:tag" content="网络排查">
+<meta property="article:tag" content="802.1X">
+<meta property="article:tag" content="PowerShell">
+<meta property="article:tag" content="踩坑">
+<meta name="twitter:card" content="summary">
+  
+  
+    <link rel="alternate" href="/atom.xml" title="清水乡" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/images/favicon.ico">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  <link rel="preload" as="style" onload="this.onload&#x3D;null;this.rel&#x3D;&#39;stylesheet&#39;" href="https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.css" integrity="sha384-IfxC36XL&#x2F;toUyJ939C73PcgMuRzAZuIzZxE38drsmO5p6jD7ei+Zx&#x2F;1oA&#x2F;0l8ysE" crossorigin="anonymous">
+  
+  
+    
+      
+<link rel="stylesheet" href="https://npm.webcache.cn/@waline/client@2.15.8/dist/waline.css" integrity="sha384-vltfZtesCdl6NYVcFVcjEaIi5RpNvZe9t7fXvq8twVtcoy+Ub9QgnxUYJmwOhYCK" crossorigin="anonymous">
+
+    
+  
+  
+  
+    
+<script src="https://npm.webcache.cn/pace-js@1.2.4/pace.min.js" integrity="sha384-k6YtvFUEIuEFBdrLKJ3YAUbBki333tj1CSUisai5Cswsg9wcLNaPzsTHDswp4Az8" crossorigin="anonymous"></script>
+
+  
+  
+    
+<link rel="stylesheet" href="https://npm.webcache.cn/@reimujs/aos@0.1.2/dist/aos.css" integrity="sha384-GMRP93c6Hkz9JVKGAuRR3nTS7M07RwPgTFenXiosjq2VbVgvdDNcz1g6Mkj8AONa" crossorigin="anonymous">
+
+  
+  
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+  <body>
+    
+    
+  <div id='loader'>
+    <div class="loading-left-bg loading-bg"></div>
+    <div class="loading-right-bg loading-bg"></div>
+    <div class="spinner-box">
+      <div class="loading-taichi rotate">
+        
+          <svg width="150" height="150" viewBox="0 0 1024 1024" class="icon" version="1.1" xmlns="https://www.w3.org/2000/svg" shape-rendering="geometricPrecision">
+            <path d="M303.5 432A80 80 0 0 1 291.5 592A80 80 0 0 1 303.5 432z" fill="var(--red-1, #ff5252)" />
+            <path d="M512 65A447 447 0 0 1 512 959L512 929A417 417 0 0 0 512 95A417 417 0 0 0 512 929L512 959A447 447 0 0 1 512 65z 
+           M512 95A417 417 0 0 1 929 512A208.5 208.5 0 0 1 720.5 720.5L720.5 592A80 80 0 0 0 720.5 432A80 80 0 0 0 720.5 592L720.5 720.5A208.5 208.5 0 0 1 512 512A208.5 208.5 0 0 0 303.5 303.5A208.5 208.5 0 0 0 95 512A417 417 0 0 1 512 95z" fill="var(--red-1, #ff5252)" />
+          </svg>
+        
+      </div>
+      
+      
+        
+      
+      <div class="loading-word">少女祈祷中...</div>
+    </div>
+  </div>
+  </div>
+  <script>
+    var time = null;
+    var startLoading = () => {
+      time = Date.now();
+      document.getElementById('loader').classList.remove("loading");
+    }
+    var endLoading = () => {
+      if (!time) {
+        document.body.style.overflow = 'auto';
+        document.getElementById('loader').classList.add("loading");
+      } else {
+        if (Date.now() - time > 500) {
+          time = null;
+          document.body.style.overflow = 'auto';
+          document.getElementById('loader').classList.add("loading");
+        } else {
+          setTimeout(endLoading, 500 - (Date.now() - time));
+          time = null;
+        }
+      }
+    }
+    window.addEventListener('DOMContentLoaded', endLoading);
+    document.getElementById('loader').addEventListener('click', endLoading);
+  </script>
+
+<div id="copy-tooltip" style="pointer-events: none; opacity: 0; transition: all 0.2s ease; position: fixed;top: 50%;left: 50%;z-index: 999;transform: translate(-50%, -50%);color: white;background: rgba(0, 0, 0, 0.5);padding: 10px 15px;border-radius: 10px;">
+</div>
+<div id="heatmap-tooltip"></div>
+
+
+    <div id="container">
+      <div id="wrap">
+        <div id="header-nav">
+  <nav id="main-nav">
+    
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+             
+              &#xe62b;
+             
+          </div>
+          <a class="main-nav-link" href="/">首页</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+             
+              &#xe62b;
+             
+          </div>
+          <a class="main-nav-link" href="/archives">归档</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+             
+              &#xe62b;
+             
+          </div>
+          <a class="main-nav-link" href="/about">关于</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+             
+              &#xe62b;
+             
+          </div>
+          <a class="main-nav-link" href="/friend">友链</a>
+        </span>
+      
+    
+    <a id="main-nav-toggle" class="nav-icon"></a>
+  </nav>
+  <nav id="sub-nav">
+    
+      <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS 订阅" target="_blank"></a>
+    
+    
+    
+      <a id="nav-search-btn" class="nav-icon popup-trigger" title="搜索"></a>
+    
+  </nav>
+  
+</div>
+<header id="header">
+  
+    
+      
+        <picture>
+          
+        </picture>
+        
+          <img  fetchpriority="high" src="/images/banner.webp" alt="校园网突然连不上：一个 0x525、一次版本错乱，和一串连锁反应">
+        
+      
+    
+  
+  <div id="header-outer">
+    <div id="header-title">
+      
+        
+        
+          <span id="logo">
+            <h1 data-aos="slide-up">校园网突然连不上：一个 0x525、一次版本错乱，和一串连锁反应</h1>
+          </span>
+        
+      
+      
+        
+        <h2 id="subtitle-wrap" data-aos="slide-down">
+          
+        </h2>
+      
+    </div>
+  </div>
+</header>
+
+        <div id="content"  class="sidebar-right" >
+          <aside id="sidebar">
+  
+  <div class="sidebar-wrapper-container sticky">
+  
+    
+    
+  
+ 
+  <div class="sidebar-wrapper">
+    <div class="sidebar-wrap" data-aos="fade-up">
+      
+        
+          <div class="sidebar-toc-sidebar"><h3 class="toc-title">文章目录</h3>
+<div class="sidebar-toc-wrapper toc-div-class" >
+  
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E7%97%87%E7%8A%B6"><span class="toc-number">1.</span> <span class="toc-text">一、症状</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E5%85%88%E6%8A%8A%E7%BD%91%E7%BB%9C%E5%B1%82%E6%8E%92%E9%99%A4%E5%B9%B2%E5%87%80"><span class="toc-number">2.</span> <span class="toc-text">二、先把网络层排除干净</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B0%84%E9%A2%91%E5%92%8C%E5%85%B3%E8%81%94"><span class="toc-number">2.1.</span> <span class="toc-text">射频和关联</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#AP-%E4%BE%A7%E5%8A%A0%E5%AF%86%E5%8F%82%E6%95%B0"><span class="toc-number">2.2.</span> <span class="toc-text">AP 侧加密参数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BD%91%E5%8D%A1%E5%92%8C%E9%A9%B1%E5%8A%A8"><span class="toc-number">2.3.</span> <span class="toc-text">网卡和驱动</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B6%E4%BB%96%E5%B8%B8%E8%A7%84%E6%80%80%E7%96%91"><span class="toc-number">2.4.</span> <span class="toc-text">其他常规怀疑</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BB%93%E8%AE%BA"><span class="toc-number">2.5.</span> <span class="toc-text">结论</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E8%B5%B0%E8%BF%87%E7%9A%84%E4%B8%80%E5%A0%86%E5%BC%AF%E8%B7%AF"><span class="toc-number">3.</span> <span class="toc-text">三、走过的一堆弯路</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BC%AF%E8%B7%AF-1%EF%BC%9A%E4%BB%A5%E4%B8%BA%E6%A1%A3%E6%A1%88%E4%B8%A2%E4%BA%86"><span class="toc-number">3.1.</span> <span class="toc-text">弯路 1：以为档案丢了</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BC%AF%E8%B7%AF-2%EF%BC%9A%E4%BB%A5%E4%B8%BA%E5%87%AD%E6%8D%AE%E6%B2%A1%E5%86%99%E8%BF%9B%E5%8E%BB"><span class="toc-number">3.2.</span> <span class="toc-text">弯路 2：以为凭据没写进去</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BC%AF%E8%B7%AF-3%EF%BC%9A%E4%BB%A5%E4%B8%BA-DPAPI-%E4%BD%9C%E7%94%A8%E5%9F%9F%E9%94%99%E4%BA%86"><span class="toc-number">3.3.</span> <span class="toc-text">弯路 3：以为 DPAPI 作用域错了</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BC%AF%E8%B7%AF-4%EF%BC%9A%E4%BB%A5%E4%B8%BA-EapHost-%E6%B3%A8%E5%86%8C%E8%A1%A8%E7%BC%BA%E4%BA%86-PEAP"><span class="toc-number">3.4.</span> <span class="toc-text">弯路 4：以为 EapHost 注册表缺了 PEAP</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BC%AF%E8%B7%AF-5%EF%BC%9A%E4%BB%A5%E4%B8%BA%E7%B3%BB%E7%BB%9F%E6%96%87%E4%BB%B6%E5%9D%8F%E4%BA%86"><span class="toc-number">3.5.</span> <span class="toc-text">弯路 5：以为系统文件坏了</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BC%AF%E8%B7%AF-6%EF%BC%9A%E4%BB%A5%E4%B8%BA%E6%9D%83%E9%99%90%E8%A2%AB%E5%89%A5%E5%A4%BA"><span class="toc-number">3.6.</span> <span class="toc-text">弯路 6：以为权限被剥夺</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BC%AF%E8%B7%AF-7%EF%BC%9A%E4%BB%A5%E4%B8%BA%E8%A2%AB%E6%94%B9%E6%88%90%E4%BA%86%E5%A4%9A%E4%BC%9A%E8%AF%9D-RDPWrap"><span class="toc-number">3.7.</span> <span class="toc-text">弯路 7：以为被改成了多会话&#x2F;RDPWrap</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E7%9C%9F%E6%AD%A3%E7%9A%84%E8%BD%AC%E6%8A%98%EF%BC%9A%E8%AF%BB%E6%87%82-0x525"><span class="toc-number">4.</span> <span class="toc-text">四、真正的转折：读懂 0x525</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%86%B3%E5%AE%9A%E6%80%A7%E4%BA%A4%E5%8F%89%E9%AA%8C%E8%AF%81"><span class="toc-number">4.1.</span> <span class="toc-text">决定性交叉验证</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC%E4%BA%8C%E4%B8%AA%E5%86%B3%E5%AE%9A%E6%80%A7%E8%AF%81%E6%8D%AE%EF%BC%9A%E6%97%A5%E5%BF%97%E9%80%9A%E9%81%93%E9%9D%99%E9%BB%98"><span class="toc-number">4.2.</span> <span class="toc-text">第二个决定性证据：日志通道静默</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E6%89%BE%E5%88%B0%E5%85%83%E5%87%B6%EF%BC%9ACBS-%E6%97%A5%E5%BF%97%E9%87%8C%E7%9A%84%E9%82%A3%E4%B8%80%E8%A1%8C"><span class="toc-number">5.</span> <span class="toc-text">五、找到元凶：CBS 日志里的那一行</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AD%E3%80%81%E5%BE%AE%E8%BD%AF%E7%9A%84-KB-%E6%96%87%E6%A1%A3%E7%A1%AE%E8%AE%A4%E4%BA%86%E8%BF%99%E4%BB%B6%E4%BA%8B"><span class="toc-number">6.</span> <span class="toc-text">六、微软的 KB 文档确认了这件事</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%83%E3%80%81%E4%BF%AE%E5%A4%8D%EF%BC%9A%E6%8A%8A%E7%89%88%E6%9C%AC%E5%88%87%E5%9B%9E%E5%8E%BB"><span class="toc-number">7.</span> <span class="toc-text">七、修复：把版本切回去</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%87%E5%AE%8C%E4%B9%8B%E5%90%8E%E6%9C%89%E4%B8%A4%E4%B8%AA%E5%BF%85%E7%84%B6%E5%90%8E%E6%9E%9C"><span class="toc-number">7.1.</span> <span class="toc-text">切完之后有两个必然后果</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AB%E3%80%81%E4%BF%AE%E5%A4%8D%E5%B8%A6%E6%9D%A5%E7%9A%84%E4%B8%89%E4%B8%AA%E6%96%B0%E9%97%AE%E9%A2%98"><span class="toc-number">8.</span> <span class="toc-text">八、修复带来的三个新问题</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%B0%E9%97%AE%E9%A2%98-1%EF%BC%9ADocker-%E6%8C%82%E4%BA%86"><span class="toc-number">8.1.</span> <span class="toc-text">新问题 1：Docker 挂了</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%B0%E9%97%AE%E9%A2%98-2%EF%BC%9A%E8%AE%BE%E7%BD%AE%E9%87%8C%E7%9A%84-WLAN-%E9%A1%B5%E4%B8%80%E7%82%B9%E5%B0%B1%E9%97%AA%E9%80%80"><span class="toc-number">8.2.</span> <span class="toc-text">新问题 2：设置里的 WLAN 页一点就闪退</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%B0%E9%97%AE%E9%A2%98-3%EF%BC%9AMAC-%E9%9A%8F%E6%9C%BA%E5%8C%96%E5%9C%A8%E5%81%B7%E5%81%B7%E7%94%9F%E6%95%88"><span class="toc-number">8.3.</span> <span class="toc-text">新问题 3：MAC 随机化在偷偷生效</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B9%9D%E3%80%81%E6%9C%80%E5%90%8E%E4%B8%80%E6%AC%A1%E9%87%8D%E5%90%AF"><span class="toc-number">9.</span> <span class="toc-text">九、最后一次重启</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8D%81%E3%80%81%E6%96%B9%E6%B3%95%E8%AE%BA%E6%80%BB%E7%BB%93"><span class="toc-number">10.</span> <span class="toc-text">十、方法论总结</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E9%94%99%E8%AF%AF%E7%A0%81%E8%A6%81%E6%9F%A5%E2%80%9D%E5%AE%83%E5%9C%A8%E8%BF%99%E4%B8%AA%E4%B8%8A%E4%B8%8B%E6%96%87%E9%87%8C%E6%98%AF%E4%BB%80%E4%B9%88%E6%84%8F%E6%80%9D%E2%80%9D"><span class="toc-number">10.1.</span> <span class="toc-text">1. 错误码要查”它在这个上下文里是什么意思”</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E7%A9%BA%E5%AD%97%E6%AE%B5%E6%98%AF%E5%BC%BA%E8%AF%81%E6%8D%AE"><span class="toc-number">10.2.</span> <span class="toc-text">2. 空字段是强证据</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E6%97%A5%E5%BF%97%E2%80%9D%E6%B2%A1%E5%86%99%E2%80%9D%E4%B9%9F%E6%98%AF%E8%AF%81%E6%8D%AE"><span class="toc-number">10.3.</span> <span class="toc-text">3. 日志”没写”也是证据</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E4%BB%BB%E4%BD%95%E5%BC%82%E5%B8%B8%E7%8E%B0%E8%B1%A1%E9%83%BD%E8%A6%81%E5%81%9A%E5%AF%B9%E7%85%A7"><span class="toc-number">10.4.</span> <span class="toc-text">4. 任何异常现象都要做对照</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-%E6%97%B6%E5%BA%8F%E8%83%BD%E5%AE%9A%E6%A1%88"><span class="toc-number">10.5.</span> <span class="toc-text">5. 时序能定案</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-%E4%BF%AE%E6%A0%B9%E5%9B%A0%E4%BC%9A%E5%BC%95%E5%87%BA%E6%96%B0%E9%97%AE%E9%A2%98%EF%BC%8C%E8%A6%81%E7%95%99%E5%90%8E%E6%89%8B"><span class="toc-number">10.6.</span> <span class="toc-text">6. 修根因会引出新问题，要留后手</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8D%81%E4%B8%80%E3%80%81%E8%BF%98%E6%B2%A1%E6%90%9E%E6%B8%85%E6%A5%9A%E7%9A%84%E4%BA%8B"><span class="toc-number">11.</span> <span class="toc-text">十一、还没搞清楚的事</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%99%84%EF%BC%9A%E5%AE%8C%E6%95%B4%E6%97%B6%E9%97%B4%E7%BA%BF"><span class="toc-number">12.</span> <span class="toc-text">附：完整时间线</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%99%84%EF%BC%9A%E8%BF%99%E6%AC%A1%E7%94%A8%E5%88%B0%E7%9A%84%E5%85%B3%E9%94%AE%E5%91%BD%E4%BB%A4"><span class="toc-number">13.</span> <span class="toc-text">附：这次用到的关键命令</span></a></li></ol>
+  
+</div>
+</div>
+          <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.webp" data-sizes="auto" alt="清水尚辉" class="lazyload">
+  <div class="sidebar-author-name">清水尚辉</div>
+  <div class="sidebar-description">觉厨</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">5</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">1</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">7</div>
+  </div>
+</div>
+<div class="sidebar-social">
+  
+    <div class="icon-github sidebar-social-icon">
+      <a href=https://github.com/gfjdh itemprop="url" target="_blank" aria-label="github" rel="noopener external nofollow noreferrer"></a>
+    </div>
+  
+    <div class="icon-bilibili sidebar-social-icon">
+      <a href=https://space.bilibili.com/259514534 itemprop="url" target="_blank" aria-label="bilibili" rel="noopener external nofollow noreferrer"></a>
+    </div>
+  
+</div>
+<div class="sidebar-menu">
+  
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          
+            &#xe62b;
+          
+        </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          
+            &#xe62b;
+          
+        </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          
+            &#xe62b;
+          
+        </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          
+            &#xe62b;
+          
+        </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+    
+  
+</div>
+</div>
+        
+      
+      
+        
+          <div class="sidebar-btn-wrapper" style="position:static">
+            <div class="sidebar-toc-btn current"></div>
+            <div class="sidebar-common-btn"></div>
+          </div>
+        
+      
+    </div>
+  </div>
+  
+  <div class="sidebar-widget">
+  
+  </div>
+  
+  </div>
+  
+</aside>
+
+          <section id="main"><article id="post-windows-8021x-0x525-rdsh" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner" data-aos="fade-up">
+    <div class="article-meta">
+      <div class="article-date">
+  <span class="article-date-link icon-calendar" data-aos="zoom-in">
+    <time datetime="2026-11-24T19:00:00.000Z" itemprop="datePublished">2026-11-25</time>
+    <time style="display: none;" id="post-update-time">2026-11-25</time>
+  </span>
+  
+</div>
+
+      
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%8A%98%E8%85%BE%E8%AE%B0%E5%BD%95/" data-aos="zoom-in">折腾记录</a>
+  </div>
+
+
+    </div>
+    
+    <div class="hr-line"></div>
+    
+
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+      
+        <blockquote>
+<p>2026-11-25 记。一台 Windows 10 22H2 笔记本，WPA2-Enterprise 校园网突然认证失败，排查到最后发现根因跟网络一点关系都没有。</p>
+</blockquote>
+<h2 id="一、症状"><a href="#一、症状" class="headerlink" title="一、症状"></a>一、症状</h2><p>11 月 16 日下午开始，笔记本连不上学校 Wi-Fi（CAMPUS-WIFI）。</p>
+<ul>
+<li>点连接，转一两秒，提示”无法连接到这个网络”</li>
+<li>宿舍 Wi-Fi、手机热点都正常</li>
+<li>密码肯定没改过，同一账号在手机上能用</li>
+</ul>
+<p>CAMPUS-WIFI 是 <strong>WPA2-Enterprise</strong>：外层 PEAP，内层 MSCHAPv2，用账号认证，不验证服务器证书。</p>
+<p>翻 <code>Microsoft-Windows-WLAN-AutoConfig/Operational</code>，失败事件 <code>12013</code> 的错误码恒为：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">错误:          0x525</span><br><span class="line">原因:          无法识别进行 802.1X 身份验证的用户</span><br><span class="line">标识:          (空)</span><br><span class="line">用户:          (空)</span><br><span class="line">域:            (空)</span><br><span class="line">EAP 原因代码:  0x0</span><br><span class="line">EAP 错误代码:  0x0</span><br></pre></td></tr></table></figure>
+
+<p>注意最后三行——标识、用户、域<strong>全是空的</strong>。这是后来一切推理的起点。</p>
+<p>对照成功事件 <code>12012</code>，这三个字段从来都是有值的：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">标识: 1234567</span><br><span class="line">用户: DESKTOP-ABC1234</span><br><span class="line">域:   DESKTOP-ABC1234</span><br></pre></td></tr></table></figure>
+
+<p>最后一次成功是 <strong>11-16 00:53:18</strong>。</p>
+<h2 id="二、先把网络层排除干净"><a href="#二、先把网络层排除干净" class="headerlink" title="二、先把网络层排除干净"></a>二、先把网络层排除干净</h2><p>在怀疑操作系统之前，得先证明网络本身是好的。这一步做扎实，后面才不会反复回头。</p>
+<h3 id="射频和关联"><a href="#射频和关联" class="headerlink" title="射频和关联"></a>射频和关联</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">11001  关联成功            ← 每次都有</span><br><span class="line">RSSI   -43 ~ -64 dBm       ← 信号很好</span><br><span class="line">无线电类型  802.11ax</span><br></pre></td></tr></table></figure>
+
+<p><code>11001 关联成功</code> 是关键——它意味着<strong>链路层握手完全正常</strong>，AP 认了这台设备，允许它进入认证阶段。</p>
+<h3 id="AP-侧加密参数"><a href="#AP-侧加密参数" class="headerlink" title="AP 侧加密参数"></a>AP 侧加密参数</h3><p>连续 10 天抓了 114 次 CAMPUS-WIFI 的 RSN IE（无线安全协商信息），<strong>114&#x2F;114 完全一致</strong>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Group Cipher:    CCMP</span><br><span class="line">Pairwise Cipher: CCMP</span><br><span class="line">AKM:             802.1X + FT-802.1X</span><br><span class="line">RSN Capabilities: 0x0000</span><br></pre></td></tr></table></figure>
+
+<p><code>RSN Capabilities = 0x0000</code> 说明这个网络<strong>不支持也不要求 PMF</strong>（Protected Management Frames），也不是 WPA3。</p>
+<p>这排除了两种常见故障：AP 侧参数被改、或者网络升级到了 WPA3 而客户端不兼容。</p>
+<h3 id="网卡和驱动"><a href="#网卡和驱动" class="headerlink" title="网卡和驱动"></a>网卡和驱动</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">MediaTek Wi-Fi 6 MT7921</span><br><span class="line">驱动 mtkwl6ex.sys  3.0.1.1294  2023-03-13</span><br></pre></td></tr></table></figure>
+
+<p>驱动确实有更新版本（3.0.1.1335、3.5.0.1349），但换驱动不解决 0x525——因为 0x525 发生在驱动之上的 OneX 层，网卡驱动根本不参与。</p>
+<h3 id="其他常规怀疑"><a href="#其他常规怀疑" class="headerlink" title="其他常规怀疑"></a>其他常规怀疑</h3><p>顺手排掉的：</p>
+<ul>
+<li><strong>MAC 随机化</strong>：一开始以为关了，后来发现 <code>RandomMacState</code> 是 <code>1,0,0,0</code>（见第八节新问题 3）</li>
+<li><strong>时间不同步</strong>：<code>w32tm /query /status</code> 报 <code>0x80070426</code>（服务没启动），但本机时间与真实时间一致，不是这个原因</li>
+<li><strong>根证书缺失</strong>：<code>Cert:\LocalMachine\Root</code> 有 77 个证书，校园网根证书在里面</li>
+<li><strong>多网卡冲突</strong>：这台机器只有一块无线网卡</li>
+<li><strong>第三方 802.1X 客户端</strong>：遍历三个 Uninstall 键匹配 802&#x2F;Supplicant&#x2F;AnyConnect&#x2F;Cisco&#x2F;H3C&#x2F;华为&#x2F;锐捷&#x2F;深信服&#x2F;Dr.com 等关键词，<strong>没有任何校园网客户端</strong></li>
+<li><strong>MAC 绑定</strong>：AP 侧没有拒绝关联，说明没做 MAC 过滤</li>
+</ul>
+<h3 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">射频      ✅ 正常</span><br><span class="line">关联      ✅ 成功</span><br><span class="line">加密协商  ✅ 成功</span><br><span class="line">证书      ✅ 存在</span><br><span class="line">驱动      ✅ 可用</span><br></pre></td></tr></table></figure>
+
+<p><strong>网络层完全健康。故障在客户端软件栈更上层。</strong></p>
+<p>这个结论很重要——它把排查范围从”网络问题”整个挪到了”Windows 的 802.1X 组件”，后面才有动力去翻 CBS 日志。</p>
+<h2 id="三、走过的一堆弯路"><a href="#三、走过的一堆弯路" class="headerlink" title="三、走过的一堆弯路"></a>三、走过的一堆弯路</h2><p>这段最值得写，因为每一个”合理怀疑”都被证据否掉了。</p>
+<h3 id="弯路-1：以为档案丢了"><a href="#弯路-1：以为档案丢了" class="headerlink" title="弯路 1：以为档案丢了"></a>弯路 1：以为档案丢了</h3><p><code>netsh wlan show profile name=&quot;CAMPUS-WIFI&quot;</code> 返回 not found，磁盘上 41 个档案 XML 里也没有它。看起来像是档案被删了。</p>
+<p>于是重建档案。这里踩了两个坑：</p>
+<p><strong>坑一：命名空间必须是 <code>http://</code> 不是 <code>https://</code></strong></p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 错，报 0x80002 缺少 WLAN 配置文件元素 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">WLANProfile</span> <span class="attr">xmlns</span>=<span class="string">&quot;https://www.microsoft.com/networking/WLAN/profile/v1&quot;</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&lt;!-- 对 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">WLANProfile</span> <span class="attr">xmlns</span>=<span class="string">&quot;http://www.microsoft.com/networking/WLAN/profile/v1&quot;</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>坑二：手写 EAP 段几乎必错</strong></p>
+<p>我按官方文档手写的 EapHostConfig 段，<code>netsh wlan add profile</code> 直接报 <code>0x80001 根据架构，该配置文件无效</code>。</p>
+<p>正确做法是<strong>别自己写</strong>——Windows 自己就有模板：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">HKLM\SYSTEM\CurrentControlSet\Services\RasMan\PPP\EAP\25\WLANProfileCreationUXAuth\26\WLANProfileTemplate</span><br></pre></td></tr></table></figure>
+
+<p>这是个 2551 字符的完整 PEAP 档案，直接读出来做字符串替换（改 SSID、关掉服务器证书验证、<code>connectionMode</code> 改 manual）就能用。比自己写靠谱一万倍。</p>
+<p><strong>结果：重建成功，仍然 0x525。</strong></p>
+<h3 id="弯路-2：以为凭据没写进去"><a href="#弯路-2：以为凭据没写进去" class="headerlink" title="弯路 2：以为凭据没写进去"></a>弯路 2：以为凭据没写进去</h3><p><code>netsh wlan show profile</code> 里有个”配置的凭据”字段，一直显示”否”。看起来像密码没存上。</p>
+<p>于是用 <code>WlanSetProfileEapXmlUserData</code> 直接写凭据。这个 API 一直返回 <code>rc=87</code>（<code>ERROR_INVALID_PARAMETER</code>），查了很久才发现真因：</p>
+<p><strong>凭据 XML 缺 <code>&lt;Password&gt;</code> 元素就会返回 87。</strong></p>
+<p>补上之后 <code>rc=0</code>，凭据确实落盘了——位置是：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">HKCU\Software\Microsoft\Wlansvc\UserData\Profiles\&#123;档案GUID&#125;\MSMUserData</span><br></pre></td></tr></table></figure>
+
+<p>不是 HKLM，是 HKCU。1222 字节。</p>
+<p><strong>但注意：<code>netsh wlan show profile</code> 的”配置的凭据”字段在有些机器上永远显示”否”，哪怕凭据已经写好了。这个字段不能用来判断。</strong></p>
+<p><strong>结果：凭据确认存在，仍然 0x525。</strong></p>
+<h3 id="弯路-3：以为-DPAPI-作用域错了"><a href="#弯路-3：以为-DPAPI-作用域错了" class="headerlink" title="弯路 3：以为 DPAPI 作用域错了"></a>弯路 3：以为 DPAPI 作用域错了</h3><p>解开 MSMUserData 的 blob，发现 <code>guidMasterKey</code> 指向的是 <code>S-1-5-18\User</code>（机器作用域），而不是用户自己的 Protect 目录。用户上下文解密全部 <code>0x8009000B</code>。</p>
+<p>看起来像”Wlansvc 用错了解密作用域”。</p>
+<p><strong>但做了对照实验就破功了</strong>：拿 6 个普通的 WPA2-PSK 档案（家里路由、手机热点之类，这些都能正常连）做同样测试——结果<strong>完全一样</strong>，主密钥都在 <code>S-1-5-18\User</code>，用户上下文解密全是 <code>0x8009000B</code>，成功 0&#x2F;6。</p>
+<p>说明 Wlansvc 以 LocalSystem 运行、用机器作用域加密是<strong>正常行为</strong>，不是故障。</p>
+<p><strong>教训：任何”异常现象”都要先做对照，确认它在正常机器上是不是也这样。</strong></p>
+<h3 id="弯路-4：以为-EapHost-注册表缺了-PEAP"><a href="#弯路-4：以为-EapHost-注册表缺了-PEAP" class="headerlink" title="弯路 4：以为 EapHost 注册表缺了 PEAP"></a>弯路 4：以为 EapHost 注册表缺了 PEAP</h3><p><code>HKLM\SYSTEM\CurrentControlSet\Services\EapHost\Methods\311</code> 下只有 18、21、23、254、50、55，<strong>没有 13（EAP-TLS）、25（PEAP）、26（MSCHAPv2）</strong>。</p>
+<p>看起来像 PEAP 没注册。</p>
+<p>这个怀疑很有说服力，直到我从 WinRE 里挂了一个<strong>干净的</strong> Windows 10 的 SYSTEM hive 出来对照：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"># 挂载 WinRE 镜像</span><br><span class="line">dism /Mount-Image /ImageFile:\\?\GLOBALROOT\device\harddisk1\partition5\Recovery\WindowsRE\winre.wim /Index:1 /MountDir:C:\temp\winremnt /ReadOnly</span><br><span class="line">reg load HKLM\WINRE_SYS C:\temp\winremnt\Windows\System32\config\SYSTEM</span><br></pre></td></tr></table></figure>
+
+<p>结果：<strong>干净的 Win10，<code>Methods\311</code> 下也只有 21、254、55。</strong></p>
+<p>缺 25&#x2F;26&#x2F;13 是正常设计——PEAP 和 MSCHAPv2 的实现在 <code>C:\Windows\System32\eapp3hst.dll</code>（Microsoft ThirdPartyEapDispatcher），走的是 legacy EAP 转发层，不在这张表里注册。</p>
+<p><strong>这条线彻底作废。</strong></p>
+<h3 id="弯路-5：以为系统文件坏了"><a href="#弯路-5：以为系统文件坏了" class="headerlink" title="弯路 5：以为系统文件坏了"></a>弯路 5：以为系统文件坏了</h3><p><code>sfc /scannow</code> 跑 245 秒，只修了一个无关的 OneDrive.lnk。<code>DISM /RestoreHealth</code> 报成功。</p>
+<p>修复前后对 10 个关键 EAP 文件算 SHA256，<strong>全部未变</strong>。</p>
+<p><strong>结果：系统文件是好的。</strong></p>
+<h3 id="弯路-6：以为权限被剥夺"><a href="#弯路-6：以为权限被剥夺" class="headerlink" title="弯路 6：以为权限被剥夺"></a>弯路 6：以为权限被剥夺</h3><p>怀疑某个安全模板把 WlanSvc&#x2F;EapHost 需要的特权拿掉了。</p>
+<p>对比 <code>defltrdsh.inf</code>（RDSH 模板）和 <code>defltbase.inf</code>（普通模板），差异只有 6 处，全跟 802.1X 无关。<code>SeTcbPrivilege</code> 在两个模板里都是空的——服务靠自己的 <code>RequiredPrivileges</code> 拿权限，WlanSvc、EapHost、RasMan 都带。</p>
+<p><strong>结果：权限没问题。</strong></p>
+<h3 id="弯路-7：以为被改成了多会话-RDPWrap"><a href="#弯路-7：以为被改成了多会话-RDPWrap" class="headerlink" title="弯路 7：以为被改成了多会话&#x2F;RDPWrap"></a>弯路 7：以为被改成了多会话&#x2F;RDPWrap</h3><p><code>termsrv.dll</code> 是官方版本（10.0.19041.4522），没有 RDPWrap，没有第三方多会话工具。</p>
+<p><strong>结果：没有篡改。</strong></p>
+<h2 id="四、真正的转折：读懂-0x525"><a href="#四、真正的转折：读懂-0x525" class="headerlink" title="四、真正的转折：读懂 0x525"></a>四、真正的转折：读懂 0x525</h2><p>前面七条弯路走完，我停下来重新看那个错误码。</p>
+<p><code>0x525</code> &#x3D; 十进制 1317 &#x3D; <code>ERROR_NO_SUCH_USER</code>。字面意思是”指定的账户不存在”，很容易理解成”账号或密码错了”。</p>
+<p><strong>但这个理解是错的。</strong></p>
+<p>在 802.1X 的场景里，0x525 对应的是 OneX 层的 <code>ONEX_UNABLE_TO_IDENTIFY_USER = 0x50001</code>，意思是：</p>
+<blockquote>
+<p><strong>认证模式设成了”用户认证”，但拿不到用户身份。</strong></p>
+</blockquote>
+<p>而”服务器拒绝密码”对应的是完全不同的错误码（0x30a、0x404），并且<strong>服务器拒绝时标识字段一定有值</strong>——因为服务器得知道你在用哪个账号拒绝你。</p>
+<p>这里标识字段是空的，说明请求根本没发出去。</p>
+<h3 id="决定性交叉验证"><a href="#决定性交叉验证" class="headerlink" title="决定性交叉验证"></a>决定性交叉验证</h3><p>我做了个对照实验：</p>
+<table>
+<thead>
+<tr>
+<th>条件</th>
+<th>EAP 类型</th>
+<th>凭据</th>
+<th>标识字段</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>有档案 + 有凭据（1222 字节）</td>
+<td>25 (PEAP)</td>
+<td>有</td>
+<td><strong>空</strong></td>
+<td>0x525</td>
+</tr>
+<tr>
+<td>无档案 + 无凭据</td>
+<td>0</td>
+<td>无</td>
+<td><strong>空</strong></td>
+<td>0x525</td>
+</tr>
+</tbody></table>
+<p>两种情况，档案、凭据、EAP 类型全都不一样，<strong>错误码和空标识一模一样</strong>。</p>
+<p>→ <strong>0x525 是 OneX 层通用的”拿不到用户身份”，跟凭据对不对没有任何关系。</strong></p>
+<h3 id="第二个决定性证据：日志通道静默"><a href="#第二个决定性证据：日志通道静默" class="headerlink" title="第二个决定性证据：日志通道静默"></a>第二个决定性证据：日志通道静默</h3><p>这个更狠。Windows 的 EAP 有四个日志通道：</p>
+<ul>
+<li><code>Microsoft-Windows-EapHost/Operational</code></li>
+<li><code>Microsoft-Windows-EapMethods-RasTls/Operational</code></li>
+<li><code>Microsoft-Windows-EapMethods-RasChap/Operational</code></li>
+<li><code>Microsoft-Windows-OneX/Operational</code></li>
+</ul>
+<p>查它们的最后写入时间：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">EapHost        最后写入: 2026/11/16 2:13:53</span><br><span class="line">EapMethods-RasTls   最后写入: 2026/11/16 2:13:53</span><br><span class="line">EapMethods-RasChap  最后写入: 2026/11/16 2:13:53</span><br></pre></td></tr></table></figure>
+
+<p><strong>全部冻结在故障发生的那一刻。</strong> 而 <code>WLAN-AutoConfig</code> 通道在正常滚动记录。</p>
+<p>这意味着：故障发生后那 90 多次失败，<strong>EAP 方法一次都没被调用过</strong>。失败发生在 OneX 层，在 EAP 层之前。</p>
+<p><strong>“日志通道没有写入”本身就是证据。</strong> 排查时不要只看写了什么，也要看该写而没写的。</p>
+<h2 id="五、找到元凶：CBS-日志里的那一行"><a href="#五、找到元凶：CBS-日志里的那一行" class="headerlink" title="五、找到元凶：CBS 日志里的那一行"></a>五、找到元凶：CBS 日志里的那一行</h2><p>网络层排干净了，问题一定在别处。开始翻系统变更日志。</p>
+<p>在 <code>C:\Windows\Logs\CBS\CbsPersist_20261119190152.log</code> 里找到了这一行：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">2026-11-15 22:19:16, Info  CBS  Virtual Edition: Microsoft-Windows-ServerRdshEdition will be mapped to: Microsoft-Windows-ProfessionalEdition</span><br></pre></td></tr></table></figure>
+
+<p>翻译一下：<strong>系统正在把版本映射成 ServerRdsh</strong>。</p>
+<p>ServerRdsh 是什么？<code>Windows 10 Enterprise for Virtual Desktops</code>，也就是 <strong>RDSH 多会话版</strong>。</p>
+<p>翻了之前 4 个 CbsPersist 日志（10-20、10-28、11-06、11-14），<strong>一个都没有这行</strong>。所以就是 11-15 22:19 这一晚切的。</p>
+<p>同一秒写入的东西：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">TermService 注册表键       LastWrite = 2026-11-15 22:19:24</span><br><span class="line">SessionEnv 注册表键        LastWrite = 2026-11-15 22:19:24</span><br><span class="line">Policies\System            LastWrite = 2026-11-15 22:19:23</span><br><span class="line">EapHost\Methods\311        LastWrite = 2026-11-15 22:19:23   ← 注意这个</span><br><span class="line">secedit.sdb                LastWrite = 2026-11-15 22:19:23</span><br><span class="line">System32 新增 5 个 RDSH 文件（flattemp.exe / tsprof.exe / TSAPPCMP.dll / tlsbln.exe / TSAppInstall.exe）</span><br><span class="line">drivers 目录：零修改</span><br></pre></td></tr></table></figure>
+
+<p>然后 Setup 日志：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">2026-11-15 22:19:22  id=13  A reboot is necessary</span><br><span class="line">2026-11-16 16:03:28  id=9   was successfully turned on</span><br></pre></td></tr></table></figure>
+
+<p><strong>关键时序</strong>：</p>
+<ul>
+<li>11-15 22:19 切版本，但<strong>没有重启</strong></li>
+<li>11-16 02:13:19 注销关机 —— <strong>同一秒</strong>，Winlogon 记了 <code>id=7002 用户注销通知</code>，也是<strong>第一次 0x525</strong></li>
+<li>11-16 16:02:05 开机</li>
+<li>11-16 16:03:28 RDSH 真正生效</li>
+<li>16:02:26 起，每次连 CAMPUS-WIFI 都 0x525</li>
+</ul>
+<p>注意一个反直觉的细节：11-15 22:19 切完之后、重启之前，CAMPUS-WIFI 还成功连了 4 次（21:53:07、21:53:12、00:53:13、00:53:18）。</p>
+<p><strong>所以”版本被切”本身不直接导致故障，要重启让 RDSH 真正生效才发作。</strong></p>
+<p>还有个旁证：<code>12014</code>（Onex 用户已更改）事件，11-15 每次失败前都有，<strong>11-16 16:00 之后一条都没有</strong>。说明 16:00 之后系统对”用户是谁”这件事的感知彻底变了。</p>
+<h2 id="六、微软的-KB-文档确认了这件事"><a href="#六、微软的-KB-文档确认了这件事" class="headerlink" title="六、微软的 KB 文档确认了这件事"></a>六、微软的 KB 文档确认了这件事</h2><p>搜到 <a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/troubleshoot/windows-client/remote/cannot-use-802dot1x-user-authentication-connect-rds">KB2820847</a>，原文 Cause：</p>
+<blockquote>
+<p>When 802.1x authentication mode is configured to user authentication, the supplicant fails to query the user token in the remote desktop session.</p>
+</blockquote>
+<p>Resolution：</p>
+<blockquote>
+<p>we must use computer authentication or “User or computer authentication”</p>
+</blockquote>
+<p>翻译：<strong>在远程桌面会话里，802.1X 配成”用户认证”时，请求方拿不到用户令牌。</strong></p>
+<p>我的档案正好是 <code>authMode=user</code>，系统正好变成了 RDSH 多会话。完全吻合。</p>
+<p>还有 <a target="_blank" rel="noopener" href="https://github.com/PowerShell/Win32-OpenSSH/issues/2033">Win32-OpenSSH #2033</a> 佐证，同样的报错配上 <code>Error 0x3F0 in calling WTSQueryUserToken</code>（0x3F0 &#x3D; <code>ERROR_NO_TOKEN</code>）。</p>
+<h2 id="七、修复：把版本切回去"><a href="#七、修复：把版本切回去" class="headerlink" title="七、修复：把版本切回去"></a>七、修复：把版本切回去</h2><p>既然根因是版本错乱，最直接的修法就是切回来。</p>
+<p><strong>先查清楚能不能切、会丢什么：</strong></p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">dism /online /<span class="built_in">get-currentedition</span></span><br><span class="line"><span class="comment"># Current Edition : ServerRdsh</span></span><br><span class="line"></span><br><span class="line">dism /online /<span class="built_in">get-targeteditions</span></span><br><span class="line"><span class="comment"># Professional / ProfessionalEducation / ProfessionalWorkstation / Education</span></span><br><span class="line"><span class="comment"># ProfessionalCountrySpecific / ProfessionalSingleLanguage / Enterprise / IoTEnterprise</span></span><br></pre></td></tr></table></figure>
+
+<p>Enterprise 在列表里。</p>
+<p><strong>再确认 BitLocker</strong>（切版本 + 重启有风险，恢复密码必须先存好）：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">Get-BitLockerVolume</span> | <span class="built_in">Select</span> MountPoint, VolumeStatus, KeyProtector</span><br></pre></td></tr></table></figure>
+
+<p>C&#x2F;D&#x2F;E 三卷都启用了 XTS-AES 128，C 卷是数字密码 + TPM(PCR 7,11)。恢复密码全部抄下来存好。</p>
+<p><strong>执行切换：</strong></p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dism /online /<span class="built_in">set-edition</span>:Enterprise /productkey:NPPR9<span class="literal">-FWDCX-D2C8J-H872K-2YT43</span> /accepteula</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">开始升级组件...</span><br><span class="line">开始安装产品密钥...</span><br><span class="line">产品密钥安装已完成。</span><br><span class="line">开始应用特定于版本的设置...</span><br><span class="line">特定于版本的设置应用已完成。</span><br><span class="line">操作成功完成。</span><br></pre></td></tr></table></figure>
+
+<p><strong>两秒就完了。</strong></p>
+<h3 id="切完之后有两个必然后果"><a href="#切完之后有两个必然后果" class="headerlink" title="切完之后有两个必然后果"></a>切完之后有两个必然后果</h3><p><strong>后果一：掉激活。</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">许可证状态 = 通知</span><br><span class="line">通知原因   = 0xC004F056</span><br></pre></td></tr></table></figure>
+
+<p>重新 KMS 激活：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">slmgr /skms kms.example.com:<span class="number">1688</span></span><br><span class="line">slmgr /ato</span><br><span class="line"><span class="comment"># 成功地激活了产品</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>后果二：注册表里一堆值不会立刻刷新。</strong></p>
+<p>切换后立刻查：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">EditionID     = Enterprise          ← 变了</span><br><span class="line">ProductName   = Windows 10 Enterprise for Virtual Desktops   ← 还是旧的</span><br><span class="line">ProductType   = ServerNT            ← 还是旧的</span><br><span class="line">ProductSuite  = Terminal Server     ← 还是旧的</span><br></pre></td></tr></table></figure>
+
+<p><strong>必须重启才能让这些值重算。</strong> 而且 <code>dism</code> 并不会主动设 <code>RebootPending</code> 标志——我查了 CBS 的 <code>RebootPending</code>、<code>PackagesPending</code>、WU 的 <code>RebootRequired</code>、<code>PendingFileRenameOperations</code>，<strong>全是 False</strong>。差点以为不用重启。</p>
+<h2 id="八、修复带来的三个新问题"><a href="#八、修复带来的三个新问题" class="headerlink" title="八、修复带来的三个新问题"></a>八、修复带来的三个新问题</h2><p>重启之后，Wi-Fi 好了。但重启也把之前挂起的安装操作落地了，引出三个新问题。</p>
+<h3 id="新问题-1：Docker-挂了"><a href="#新问题-1：Docker-挂了" class="headerlink" title="新问题 1：Docker 挂了"></a>新问题 1：Docker 挂了</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">The WSL Virtual Machine failed to start because the user does not have</span><br><span class="line">the required logon type.</span><br></pre></td></tr></table></figure>
+
+<p>安全日志 4625：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">登录类型:     5</span><br><span class="line">登录失败的帐户: &lt;GUID&gt; / NT VIRTUAL MACHINE</span><br><span class="line">失败原因:     此计算机上未授予用户请求的登录类型</span><br><span class="line">状态:         0xC000015B</span><br></pre></td></tr></table></figure>
+
+<p><code>0xC000015B</code> &#x3D; <code>ERROR_LOGON_TYPE_NOT_GRANTED</code>。</p>
+<p>查当前策略：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SeServiceLogonRight = *S-1-5-80-0</span><br></pre></td></tr></table></figure>
+
+<p>只有 <code>NT SERVICE\ALL SERVICES</code>，<strong>缺了 <code>*S-1-5-83-0</code>（<code>NT VIRTUAL MACHINE\Virtual Machines</code>）</strong>。</p>
+<p>是谁删的？<code>C:\Windows\security\logs\scesrv.log</code> 写得很清楚：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">2026年11月25日 1:32:44 有系统管理权限的用户登录了。</span><br><span class="line">正在分析模板 C:\Windows\inf\rdshup.inf。</span><br><span class="line">配置 S-1-5-83-0。</span><br><span class="line">删除 SeServiceLogonRight。</span><br></pre></td></tr></table></figure>
+
+<p><strong>因果链是这样：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">DISM 切版本</span><br><span class="line">  ↓ 顺带关闭 AppServerClient 组件</span><br><span class="line">  ↓ 关闭过程应用 RDSH 的 rdshup.inf 模板</span><br><span class="line">  ↓ 模板删掉了 SeServiceLogonRight 里的 S-1-5-83-0</span><br><span class="line">  ↓ Hyper-V 无法用这个虚拟账户做服务登录</span><br><span class="line">  ↓ WSL2 建不了虚拟机</span><br><span class="line">  ↓ Docker 起不来</span><br></pre></td></tr></table></figure>
+
+<p>修法很直接，只补这一项，其他一个不动：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">secedit /export /cfg backup.inf /areas USER_RIGHTS</span><br><span class="line"><span class="comment"># 编辑：SeServiceLogonRight = *S-1-5-80-0  →  *S-1-5-80-0,*S-1-5-83-0</span></span><br><span class="line">secedit /configure /db secedit.sdb /cfg fixed.inf /areas USER_RIGHTS</span><br></pre></td></tr></table></figure>
+
+<p>改完验证：<code>wsl -d Ubuntu-24.04 -e /bin/sh -c &#39;echo WSL_OK&#39;</code> → 成功。</p>
+<p><strong>教训：改系统版本之前先想清楚”这会触发哪些组件的安装&#x2F;卸载脚本”，它们会顺手改安全策略。</strong></p>
+<h3 id="新问题-2：设置里的-WLAN-页一点就闪退"><a href="#新问题-2：设置里的-WLAN-页一点就闪退" class="headerlink" title="新问题 2：设置里的 WLAN 页一点就闪退"></a>新问题 2：设置里的 WLAN 页一点就闪退</h3><p>这个是我自己作出来的。</p>
+<p>现象：点”设置 → 网络和 Internet → WLAN”，设置应用直接崩。explorer 也崩，ShellExperienceHost 也崩，RuntimeBroker 也崩。</p>
+<p>WER 报告里的崩溃模块：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Windows.Networking.UX.EapRequestHandler.dll</span><br><span class="line">异常代码: c0000005</span><br><span class="line">异常偏移: 00000000000160ff</span><br></pre></td></tr></table></figure>
+
+<p>这个 DLL 是 <strong>EAP 凭据输入界面的处理器</strong>。</p>
+<p>而我在排查早期做过一个改动——把 EAP 的 UI 弹窗标志打开：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">HKLM\SYSTEM\CurrentControlSet\Services\RasMan\PPP\EAP\25</span><br><span class="line">    InvokeUsernameDialog = 1</span><br><span class="line">    InvokePasswordDialog = 1</span><br></pre></td></tr></table></figure>
+
+<p>原值是 0。改成 1 之后，凭据界面被调用，但这个处理器在这台机器上就是会崩（文件本身没问题，跟 WinSxS 副本哈希完全一致，签名也有效——是配置触发的问题）。</p>
+<p><strong>改回 0，崩溃数从 15 次直接归零。</strong></p>
+<h3 id="新问题-3：MAC-随机化在偷偷生效"><a href="#新问题-3：MAC-随机化在偷偷生效" class="headerlink" title="新问题 3：MAC 随机化在偷偷生效"></a>新问题 3：MAC 随机化在偷偷生效</h3><p>排查时发现 <code>netsh wlan show interfaces</code> 显示的物理地址是 <code>74-87-71-XX-XX-XX</code>，而网卡真实地址是 <code>90:E8:68:XX:XX:XX</code>。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">HKLM\SOFTWARE\Microsoft\WlanSvc\Interfaces\&#123;GUID&#125;</span><br><span class="line">    RandomMacState = 1,0,0,0</span><br></pre></td></tr></table></figure>
+
+<p>改成 <code>0,0,0,0</code>，并且在档案里显式加：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">MacRandomization</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">enableRandomization</span>&gt;</span>false<span class="tag">&lt;/<span class="name">enableRandomization</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">MacRandomization</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>MAC 恢复真实值。</p>
+<p><strong>为什么这个重要</strong>：802.1X 认证跟 MAC 地址绑定。随机 MAC 会让 RADIUS 侧看到一台”新设备”，某些学校的策略会直接拒绝。</p>
+<h2 id="九、最后一次重启"><a href="#九、最后一次重启" class="headerlink" title="九、最后一次重启"></a>九、最后一次重启</h2><p>三个问题修完之后，系统仍然处于”半安装”状态：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">CBS\PackagesPending        = 16 个包（AppServerClient* / TerminalServices*）</span><br><span class="line">                              状态 5 = staged，112 = install pending</span><br><span class="line">PendingFileRenameOperations = 2 项</span><br><span class="line">sfc /verifyfile            = &quot;有一个系统修复处于挂起状态，需要重新启动才能完成该修复&quot;</span><br></pre></td></tr></table></figure>
+
+<p>而且 <code>RasTls</code> 通道依然是零写入，失败错误码变成了新的：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">原因:   接收到显式 EAP 失败</span><br><span class="line">ReasonCode: 0x50005</span><br><span class="line">ErrorCode:  0x8007000e</span><br></pre></td></tr></table></figure>
+
+<p><code>0x8007000e</code> &#x3D; <code>E_OUTOFMEMORY</code>。系统还有 13.4 GB 可用内存，显然不是真内存不足——在 EAP 里这个码通常表示资源&#x2F;状态异常。</p>
+<p>还有一个关键观察：<strong>Prefetch 目录里没有 <code>EAP3HOST.EXE-*.pf</code><strong>。这台机器上 <code>Eap3Host.exe</code>（EAP 代理宿主进程）</strong>从未成功启动过</strong>。而历史上认证成功的时候，EapHost 事件的 pid 恒为 12640，正是这个代理进程。</p>
+<p>所以 0x8007000e 的实际含义是：<strong>EapHost 收到凭据后想拉起代理进程，拉不起来，13 秒超时后报资源错误。</strong></p>
+<p>在”半安装”状态下，服务加载的组件版本可能不一致——而 <code>eapp3hst.dll</code>、<code>rastls.dll</code> 恰好都在失败路径上。</p>
+<p><strong>于是重启。</strong></p>
+<p>重启之后：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">LastBootUpTime = 2026-11-25 02:49:57</span><br><span class="line">PackagesPending 子键数: 0          ← 16 个清空了</span><br></pre></td></tr></table></figure>
+
+<p>然后：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">02:52:03  EapHost/Operational         id=2089</span><br><span class="line">02:52:03  EapMethods-RasTls/Operational  id=100   ← 这一步终于出现了</span><br><span class="line">02:52:03  OneX/Operational            id=66</span><br></pre></td></tr></table></figure>
+
+<p><strong><code>RasTls id=100</code> —— TLS 握手成功。这个通道从 11-16 冻结到现在，终于动了。</strong></p>
+<p>连接状态：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">状态:       已连接</span><br><span class="line">SSID:       CAMPUS-WIFI</span><br><span class="line">BSSID:      c4:0d:96:xx:xx:xx</span><br><span class="line">身份验证:   WPA2 - 企业</span><br><span class="line">密码:       CCMP</span><br><span class="line">无线电类型: 802.11ax</span><br><span class="line">信道:       60</span><br><span class="line">信号:       84%</span><br><span class="line">IP:         10.20.30.40/15</span><br><span class="line">网关:       10.20.255.254</span><br><span class="line">DNS:        10.20.0.53 / 10.20.0.54</span><br></pre></td></tr></table></figure>
+
+<p>实际上网验证：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">Invoke-WebRequest</span> http://www.msftconnecttest.com/connecttest.txt</span><br><span class="line"><span class="comment"># 200  Microsoft Connect Test</span></span><br></pre></td></tr></table></figure>
+
+<p>Docker 也正常，<code>SeServiceLogonRight</code> 这次没被再删。</p>
+<h2 id="十、方法论总结"><a href="#十、方法论总结" class="headerlink" title="十、方法论总结"></a>十、方法论总结</h2><p>这次排查花了很多时间，大部分时间花在错误的怀疑上。回头看，有六条经验值得记下来。</p>
+<h3 id="1-错误码要查”它在这个上下文里是什么意思”"><a href="#1-错误码要查”它在这个上下文里是什么意思”" class="headerlink" title="1. 错误码要查”它在这个上下文里是什么意思”"></a>1. 错误码要查”它在这个上下文里是什么意思”</h3><p><code>0x525</code> 字面是 <code>ERROR_NO_SUCH_USER</code>，很容易理解成”账号不存在&#x2F;密码错”。但在 802.1X 里它对应 <code>ONEX_UNABLE_TO_IDENTIFY_USER</code>——“拿不到用户身份”。</p>
+<p>同一个数字在不同子系统里含义完全不同。<strong>先查这个码在哪个组件产生、那个组件怎么定义它。</strong></p>
+<h3 id="2-空字段是强证据"><a href="#2-空字段是强证据" class="headerlink" title="2. 空字段是强证据"></a>2. 空字段是强证据</h3><p>标识&#x2F;用户&#x2F;域三个字段全空，说明请求根本没带身份出去。服务器拒绝你的时候，一定知道你是谁。</p>
+<h3 id="3-日志”没写”也是证据"><a href="#3-日志”没写”也是证据" class="headerlink" title="3. 日志”没写”也是证据"></a>3. 日志”没写”也是证据</h3><p>四个 EAP 通道全部冻结在同一秒，比任何错误信息都说明问题——<strong>失败发生在这些组件被调用之前</strong>。</p>
+<p>排查时要主动去看：这个流程正常跑的话，应该有哪些日志？哪些没出现？</p>
+<h3 id="4-任何异常现象都要做对照"><a href="#4-任何异常现象都要做对照" class="headerlink" title="4. 任何异常现象都要做对照"></a>4. 任何异常现象都要做对照</h3><ul>
+<li>怀疑 DPAPI 作用域错 → 拿 6 个正常档案对照，发现是正常行为</li>
+<li>怀疑 <code>Methods\311</code> 缺键 → 挂 WinRE 干净 hive 对照，发现干净系统也这样</li>
+</ul>
+<p><strong>没有对照的”异常”很可能是正常现象。</strong></p>
+<h3 id="5-时序能定案"><a href="#5-时序能定案" class="headerlink" title="5. 时序能定案"></a>5. 时序能定案</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">22:19:16  CBS 切版本</span><br><span class="line">02:13:19  第一次 0x525（同一秒用户注销）</span><br><span class="line">16:02:05  开机</span><br><span class="line">16:03:28  RDSH 生效</span><br><span class="line">16:02:26  之后持续失败</span><br></pre></td></tr></table></figure>
+
+<p>精确到秒的时序把”版本切换”和”故障发作”钉在了一起。反过来，11-15 22:19 到 11-16 02:13 之间还成功连了 4 次，这个反例也很重要——它说明”切版本”和”重启生效”是两个不同的触发点。</p>
+<h3 id="6-修根因会引出新问题，要留后手"><a href="#6-修根因会引出新问题，要留后手" class="headerlink" title="6. 修根因会引出新问题，要留后手"></a>6. 修根因会引出新问题，要留后手</h3><p>切版本修好了 Wi-Fi，但顺手删了 <code>SeServiceLogonRight</code>（搞挂 Docker）、留下了 16 个 pending 包（搞挂 EAP）。</p>
+<p><strong>做这类改动前，先把”这个操作会触发哪些组件脚本”想一遍，并且准备好回滚。</strong></p>
+<h2 id="十一、还没搞清楚的事"><a href="#十一、还没搞清楚的事" class="headerlink" title="十一、还没搞清楚的事"></a>十一、还没搞清楚的事</h2><p>老实说有一个问题我没答案：<strong>11-15 22:19 到底是什么触发了版本切换？</strong></p>
+<p>CBS 日志只说”正在映射成 ServerRdsh”，没说谁发起的。</p>
+<p>有一个可疑的线索：这台机器的 Windows 是第三方 KMS 激活的（<code>kms.example.com:1688</code>），而 ServerRdsh 恰好是批量授权版本。某些激活工具会通过切换版本来获取可激活的 SKU。</p>
+<p>但这只是猜测，没有证据。如果是这个原因，那这台机器以后还可能再被切一次——值得留个心。</p>
+<p>另外，切换回 Enterprise 之后，注册表里还残留着一些 RDSH 的值：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ProductSuite              = Terminal Server</span><br><span class="line">TS\fSingleSessionPerUser  = 1</span><br><span class="line">TS\TSUserEnabled          = 0</span><br></pre></td></tr></table></figure>
+
+<p>这些值没有影响任何功能（Wi-Fi 和 Docker 都正常），但严格说系统状态并不完全干净。</p>
+<hr>
+<h2 id="附：完整时间线"><a href="#附：完整时间线" class="headerlink" title="附：完整时间线"></a>附：完整时间线</h2><table>
+<thead>
+<tr>
+<th>时间</th>
+<th>事件</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>11-15 22:19:16</td>
+<td>CBS 开始把版本映射成 ServerRdsh</td>
+</tr>
+<tr>
+<td>11-15 22:19:22</td>
+<td>Setup: “A reboot is necessary”</td>
+</tr>
+<tr>
+<td>11-15 21:53 ~ 11-16 00:53</td>
+<td>CAMPUS-WIFI 仍成功连接 4 次（未重启，RDSH 未生效）</td>
+</tr>
+<tr>
+<td>11-16 02:13:19</td>
+<td>用户注销，<strong>首次 0x525</strong></td>
+</tr>
+<tr>
+<td>11-16 16:02:05</td>
+<td>开机</td>
+</tr>
+<tr>
+<td>11-16 16:03:28</td>
+<td>RDSH 真正生效</td>
+</tr>
+<tr>
+<td>11-16 16:02:26 起</td>
+<td>每次连接都 0x525，累计 90+ 次</td>
+</tr>
+<tr>
+<td>11-25 01:25:19</td>
+<td><code>dism /set-edition:Enterprise</code> 执行成功（2 秒）</td>
+</tr>
+<tr>
+<td>11-25 01:32:26</td>
+<td>重启</td>
+</tr>
+<tr>
+<td>11-25 01:32:44</td>
+<td><code>rdshup.inf</code> 应用，删除 <code>SeServiceLogonRight</code> 中的 <code>S-1-5-83-0</code></td>
+</tr>
+<tr>
+<td>11-25 01:36:46</td>
+<td>Docker 报 <code>ERROR_LOGON_TYPE_NOT_GRANTED</code></td>
+</tr>
+<tr>
+<td>11-25 01:47:19</td>
+<td>补回 <code>SeServiceLogonRight</code>，Docker 恢复</td>
+</tr>
+<tr>
+<td>11-25 02:05:52</td>
+<td>回滚 EAP UI 标志，设置页闪退停止</td>
+</tr>
+<tr>
+<td>11-25 02:49:57</td>
+<td>再次重启，清空 16 个 pending 包</td>
+</tr>
+<tr>
+<td>11-25 02:52:03</td>
+<td><strong><code>RasTls id=100</code>，认证成功，CAMPUS-WIFI 连上</strong></td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="附：这次用到的关键命令"><a href="#附：这次用到的关键命令" class="headerlink" title="附：这次用到的关键命令"></a>附：这次用到的关键命令</h2><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查当前/可用版本</span></span><br><span class="line">dism /online /<span class="built_in">get-currentedition</span></span><br><span class="line">dism /online /<span class="built_in">get-targeteditions</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 切版本（不可逆，先备份 BitLocker 恢复密码）</span></span><br><span class="line">dism /online /<span class="built_in">set-edition</span>:Enterprise /productkey:XXXXX<span class="literal">-XXXXX-XXXXX-XXXXX-XXXXX</span> /accepteula</span><br><span class="line"></span><br><span class="line"><span class="comment"># 重新激活</span></span><br><span class="line">slmgr /skms &lt;kms<span class="literal">-server</span>&gt;:<span class="number">1688</span></span><br><span class="line">slmgr /ato</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查安全策略里的登录权限</span></span><br><span class="line">secedit /export /cfg out.inf /areas USER_RIGHTS</span><br><span class="line"></span><br><span class="line"><span class="comment"># 修 SeServiceLogonRight</span></span><br><span class="line">secedit /configure /db secedit.sdb /cfg fixed.inf /areas USER_RIGHTS</span><br><span class="line"></span><br><span class="line"><span class="comment"># 挂 WinRE 拿干净 hive 做对照</span></span><br><span class="line">dism /<span class="built_in">Mount-Image</span> /ImageFile:\\?\GLOBALROOT\device\harddisk1\partition5\Recovery\WindowsRE\winre.wim /Index:<span class="number">1</span> /MountDir:C:\temp\winre /ReadOnly</span><br><span class="line">reg load HKLM\WINRE_SYS C:\temp\winre\Windows\System32\config\SYSTEM</span><br><span class="line">reg unload HKLM\WINRE_SYS</span><br><span class="line"></span><br><span class="line"><span class="comment"># 看 EAP 日志通道最后写入时间（判断流程是否真的跑到那一步）</span></span><br><span class="line"><span class="built_in">Get-WinEvent</span> <span class="literal">-LogName</span> <span class="string">&#x27;Microsoft-Windows-EapMethods-RasTls/Operational&#x27;</span> <span class="literal">-MaxEvents</span> <span class="number">1</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 读 Windows 自己的 PEAP 档案模板</span></span><br><span class="line"><span class="built_in">Get-ItemProperty</span> <span class="string">&#x27;HKLM:\SYSTEM\CurrentControlSet\Services\RasMan\PPP\EAP\25\WLANProfileCreationUXAuth\26&#x27;</span> <span class="literal">-Name</span> WLANProfileTemplate</span><br></pre></td></tr></table></figure>
+
+<hr>
+<p><em>写在最后：这次故障表面上是个网络问题，实际上网络层完全健康——关联成功、加密协商成功、信号 84%。真正的问题在操作系统的版本状态上。遇到”网络连不上”，先别急着怀疑网络。</em></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+      
+      
+      
+      
+        <a data-aos="zoom-in" href="/2026/11/25/windows-8021x-0x525-rdsh/#comments" class="article-comment-link">
+          <span class="post-comments-count waline-comment-count" data-path="/2026/11/25/windows-8021x-0x525-rdsh/" itemprop="commentCount"></span>
+          留言
+        </a>
+      
+      
+      
+      
+        <span data-aos="zoom-in" class="article-visitor-link">
+          <span class="waline-pageview-count" data-path="/2026/11/25/windows-8021x-0x525-rdsh/">0</span>
+          <em class="post-meta-item-text">阅读量</em>
+        </span>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/802-1X/" rel="tag">802.1X</a></li><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/PowerShell/" rel="tag">PowerShell</a></li><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/Windows/" rel="tag">Windows</a></li><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/%E7%BD%91%E7%BB%9C%E6%8E%92%E6%9F%A5/" rel="tag">网络排查</a></li><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/%E8%B8%A9%E5%9D%91/" rel="tag">踩坑</a></li></ul>
+
+
+    </footer>
+  </div>
+  
+  <nav id="article-nav" data-aos="fade-up">
+    
+    
+    
+    <div class="article-nav-link-wrap right">
+      
+        
+        
+          <img data-src="/covers/268.jpg" data-sizes="auto" alt="刷个 BIOS，我把自己锁在了电脑外面——一次 Windows 卡顿排查与自救全记录" class="lazyload">
+        
+      
+      <a href="/2026/11/15/windows-hitch-debug/"></a>
+      <div class="article-nav-caption">后一篇</div>
+      <h3 class="article-nav-title">
+        
+          刷个 BIOS，我把自己锁在了电脑外面——一次 Windows 卡顿排查与自救全记录
+        
+      </h3>
+    </div>
+    
+  </nav>
+
+
+</article>
+
+
+
+
+
+
+
+
+
+  <section id="comments" data-aos="fade-up">
+    <div class="comment-header">
+      
+      
+        
+      
+      <h2 class="comment-title">说些什么吧！</h2>
+      <div class="comment-selector">
+        <div class="comment-selector-wrap">
+            
+            <div class="selector-item" data-selector="waline">
+              <span>waline</span>
+            </div>
+            
+        </div>
+      </div>
+    </div>
+    <div class="comment-content">
+      
+        <div class="comment waline-comment" data-aos="fade-up"
+          id="waline-comment">
+        </div>
+      
+    </div>
+  </section>
+
+
+</section>
+        </div>
+        <footer id="footer">
+  <div style="width: 100%; overflow: hidden">
+    <div class="footer-line"></div>
+  </div>
+  <div id="footer-info">
+    
+    <div>
+      <span class="icon-copyright"></span>
+      
+      
+      
+        2020-2026
+      
+      <span class="footer-info-sep rotate"></span>
+      清水尚辉
+    </div>
+    
+      <div>
+        基于&nbsp;<a href="https://hexo.io/" rel="noopener external nofollow noreferrer" target="_blank">Hexo</a>&nbsp;
+        Theme.<a href="https://github.com/D-Sketon/hexo-theme-reimu" rel="noopener external nofollow noreferrer" target="_blank">Reimu</a>
+      </div>
+    
+    
+      <div>
+        <span class="icon-brush"></span>
+        17.9k
+        &nbsp;|&nbsp;
+        <span class="icon-coffee"></span>
+        01:07
+      </div>
+    
+    
+    
+    
+    
+      <div>
+        <span class="icon-eye"></span>
+        <span id="busuanzi_container_site_pv">总访问量&nbsp;<span id="busuanzi_value_site_pv"></span></span>
+        &nbsp;|&nbsp;
+        <span class="icon-user"></span>
+        <span id="busuanzi_container_site_uv">总访客量&nbsp;<span id="busuanzi_value_site_uv"></span></span>
+      </div>
+    
+  </div>
+</footer>
+
+        
+          <div class="sidebar-top">
+            <div class="sidebar-top-taichi rotate"></div>
+            <div class="arrow-up"></div>
+          </div>
+        
+        <div id="mask" class="hide"></div>
+      </div>
+      <nav id="mobile-nav">
+  <div class="sidebar-wrap">
+    
+      
+        <div class="sidebar-toc-sidebar"><h3 class="toc-title">文章目录</h3>
+<div class="sidebar-toc-wrapper toc-div-class" >
+  
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E7%97%87%E7%8A%B6"><span class="toc-number">1.</span> <span class="toc-text">一、症状</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E5%85%88%E6%8A%8A%E7%BD%91%E7%BB%9C%E5%B1%82%E6%8E%92%E9%99%A4%E5%B9%B2%E5%87%80"><span class="toc-number">2.</span> <span class="toc-text">二、先把网络层排除干净</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B0%84%E9%A2%91%E5%92%8C%E5%85%B3%E8%81%94"><span class="toc-number">2.1.</span> <span class="toc-text">射频和关联</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#AP-%E4%BE%A7%E5%8A%A0%E5%AF%86%E5%8F%82%E6%95%B0"><span class="toc-number">2.2.</span> <span class="toc-text">AP 侧加密参数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BD%91%E5%8D%A1%E5%92%8C%E9%A9%B1%E5%8A%A8"><span class="toc-number">2.3.</span> <span class="toc-text">网卡和驱动</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B6%E4%BB%96%E5%B8%B8%E8%A7%84%E6%80%80%E7%96%91"><span class="toc-number">2.4.</span> <span class="toc-text">其他常规怀疑</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BB%93%E8%AE%BA"><span class="toc-number">2.5.</span> <span class="toc-text">结论</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E8%B5%B0%E8%BF%87%E7%9A%84%E4%B8%80%E5%A0%86%E5%BC%AF%E8%B7%AF"><span class="toc-number">3.</span> <span class="toc-text">三、走过的一堆弯路</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BC%AF%E8%B7%AF-1%EF%BC%9A%E4%BB%A5%E4%B8%BA%E6%A1%A3%E6%A1%88%E4%B8%A2%E4%BA%86"><span class="toc-number">3.1.</span> <span class="toc-text">弯路 1：以为档案丢了</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BC%AF%E8%B7%AF-2%EF%BC%9A%E4%BB%A5%E4%B8%BA%E5%87%AD%E6%8D%AE%E6%B2%A1%E5%86%99%E8%BF%9B%E5%8E%BB"><span class="toc-number">3.2.</span> <span class="toc-text">弯路 2：以为凭据没写进去</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BC%AF%E8%B7%AF-3%EF%BC%9A%E4%BB%A5%E4%B8%BA-DPAPI-%E4%BD%9C%E7%94%A8%E5%9F%9F%E9%94%99%E4%BA%86"><span class="toc-number">3.3.</span> <span class="toc-text">弯路 3：以为 DPAPI 作用域错了</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BC%AF%E8%B7%AF-4%EF%BC%9A%E4%BB%A5%E4%B8%BA-EapHost-%E6%B3%A8%E5%86%8C%E8%A1%A8%E7%BC%BA%E4%BA%86-PEAP"><span class="toc-number">3.4.</span> <span class="toc-text">弯路 4：以为 EapHost 注册表缺了 PEAP</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BC%AF%E8%B7%AF-5%EF%BC%9A%E4%BB%A5%E4%B8%BA%E7%B3%BB%E7%BB%9F%E6%96%87%E4%BB%B6%E5%9D%8F%E4%BA%86"><span class="toc-number">3.5.</span> <span class="toc-text">弯路 5：以为系统文件坏了</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BC%AF%E8%B7%AF-6%EF%BC%9A%E4%BB%A5%E4%B8%BA%E6%9D%83%E9%99%90%E8%A2%AB%E5%89%A5%E5%A4%BA"><span class="toc-number">3.6.</span> <span class="toc-text">弯路 6：以为权限被剥夺</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BC%AF%E8%B7%AF-7%EF%BC%9A%E4%BB%A5%E4%B8%BA%E8%A2%AB%E6%94%B9%E6%88%90%E4%BA%86%E5%A4%9A%E4%BC%9A%E8%AF%9D-RDPWrap"><span class="toc-number">3.7.</span> <span class="toc-text">弯路 7：以为被改成了多会话&#x2F;RDPWrap</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E7%9C%9F%E6%AD%A3%E7%9A%84%E8%BD%AC%E6%8A%98%EF%BC%9A%E8%AF%BB%E6%87%82-0x525"><span class="toc-number">4.</span> <span class="toc-text">四、真正的转折：读懂 0x525</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%86%B3%E5%AE%9A%E6%80%A7%E4%BA%A4%E5%8F%89%E9%AA%8C%E8%AF%81"><span class="toc-number">4.1.</span> <span class="toc-text">决定性交叉验证</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC%E4%BA%8C%E4%B8%AA%E5%86%B3%E5%AE%9A%E6%80%A7%E8%AF%81%E6%8D%AE%EF%BC%9A%E6%97%A5%E5%BF%97%E9%80%9A%E9%81%93%E9%9D%99%E9%BB%98"><span class="toc-number">4.2.</span> <span class="toc-text">第二个决定性证据：日志通道静默</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E6%89%BE%E5%88%B0%E5%85%83%E5%87%B6%EF%BC%9ACBS-%E6%97%A5%E5%BF%97%E9%87%8C%E7%9A%84%E9%82%A3%E4%B8%80%E8%A1%8C"><span class="toc-number">5.</span> <span class="toc-text">五、找到元凶：CBS 日志里的那一行</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AD%E3%80%81%E5%BE%AE%E8%BD%AF%E7%9A%84-KB-%E6%96%87%E6%A1%A3%E7%A1%AE%E8%AE%A4%E4%BA%86%E8%BF%99%E4%BB%B6%E4%BA%8B"><span class="toc-number">6.</span> <span class="toc-text">六、微软的 KB 文档确认了这件事</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%83%E3%80%81%E4%BF%AE%E5%A4%8D%EF%BC%9A%E6%8A%8A%E7%89%88%E6%9C%AC%E5%88%87%E5%9B%9E%E5%8E%BB"><span class="toc-number">7.</span> <span class="toc-text">七、修复：把版本切回去</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%87%E5%AE%8C%E4%B9%8B%E5%90%8E%E6%9C%89%E4%B8%A4%E4%B8%AA%E5%BF%85%E7%84%B6%E5%90%8E%E6%9E%9C"><span class="toc-number">7.1.</span> <span class="toc-text">切完之后有两个必然后果</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AB%E3%80%81%E4%BF%AE%E5%A4%8D%E5%B8%A6%E6%9D%A5%E7%9A%84%E4%B8%89%E4%B8%AA%E6%96%B0%E9%97%AE%E9%A2%98"><span class="toc-number">8.</span> <span class="toc-text">八、修复带来的三个新问题</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%B0%E9%97%AE%E9%A2%98-1%EF%BC%9ADocker-%E6%8C%82%E4%BA%86"><span class="toc-number">8.1.</span> <span class="toc-text">新问题 1：Docker 挂了</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%B0%E9%97%AE%E9%A2%98-2%EF%BC%9A%E8%AE%BE%E7%BD%AE%E9%87%8C%E7%9A%84-WLAN-%E9%A1%B5%E4%B8%80%E7%82%B9%E5%B0%B1%E9%97%AA%E9%80%80"><span class="toc-number">8.2.</span> <span class="toc-text">新问题 2：设置里的 WLAN 页一点就闪退</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%B0%E9%97%AE%E9%A2%98-3%EF%BC%9AMAC-%E9%9A%8F%E6%9C%BA%E5%8C%96%E5%9C%A8%E5%81%B7%E5%81%B7%E7%94%9F%E6%95%88"><span class="toc-number">8.3.</span> <span class="toc-text">新问题 3：MAC 随机化在偷偷生效</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B9%9D%E3%80%81%E6%9C%80%E5%90%8E%E4%B8%80%E6%AC%A1%E9%87%8D%E5%90%AF"><span class="toc-number">9.</span> <span class="toc-text">九、最后一次重启</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8D%81%E3%80%81%E6%96%B9%E6%B3%95%E8%AE%BA%E6%80%BB%E7%BB%93"><span class="toc-number">10.</span> <span class="toc-text">十、方法论总结</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E9%94%99%E8%AF%AF%E7%A0%81%E8%A6%81%E6%9F%A5%E2%80%9D%E5%AE%83%E5%9C%A8%E8%BF%99%E4%B8%AA%E4%B8%8A%E4%B8%8B%E6%96%87%E9%87%8C%E6%98%AF%E4%BB%80%E4%B9%88%E6%84%8F%E6%80%9D%E2%80%9D"><span class="toc-number">10.1.</span> <span class="toc-text">1. 错误码要查”它在这个上下文里是什么意思”</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E7%A9%BA%E5%AD%97%E6%AE%B5%E6%98%AF%E5%BC%BA%E8%AF%81%E6%8D%AE"><span class="toc-number">10.2.</span> <span class="toc-text">2. 空字段是强证据</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E6%97%A5%E5%BF%97%E2%80%9D%E6%B2%A1%E5%86%99%E2%80%9D%E4%B9%9F%E6%98%AF%E8%AF%81%E6%8D%AE"><span class="toc-number">10.3.</span> <span class="toc-text">3. 日志”没写”也是证据</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E4%BB%BB%E4%BD%95%E5%BC%82%E5%B8%B8%E7%8E%B0%E8%B1%A1%E9%83%BD%E8%A6%81%E5%81%9A%E5%AF%B9%E7%85%A7"><span class="toc-number">10.4.</span> <span class="toc-text">4. 任何异常现象都要做对照</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-%E6%97%B6%E5%BA%8F%E8%83%BD%E5%AE%9A%E6%A1%88"><span class="toc-number">10.5.</span> <span class="toc-text">5. 时序能定案</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-%E4%BF%AE%E6%A0%B9%E5%9B%A0%E4%BC%9A%E5%BC%95%E5%87%BA%E6%96%B0%E9%97%AE%E9%A2%98%EF%BC%8C%E8%A6%81%E7%95%99%E5%90%8E%E6%89%8B"><span class="toc-number">10.6.</span> <span class="toc-text">6. 修根因会引出新问题，要留后手</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8D%81%E4%B8%80%E3%80%81%E8%BF%98%E6%B2%A1%E6%90%9E%E6%B8%85%E6%A5%9A%E7%9A%84%E4%BA%8B"><span class="toc-number">11.</span> <span class="toc-text">十一、还没搞清楚的事</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%99%84%EF%BC%9A%E5%AE%8C%E6%95%B4%E6%97%B6%E9%97%B4%E7%BA%BF"><span class="toc-number">12.</span> <span class="toc-text">附：完整时间线</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%99%84%EF%BC%9A%E8%BF%99%E6%AC%A1%E7%94%A8%E5%88%B0%E7%9A%84%E5%85%B3%E9%94%AE%E5%91%BD%E4%BB%A4"><span class="toc-number">13.</span> <span class="toc-text">附：这次用到的关键命令</span></a></li></ol>
+  
+</div>
+</div>
+        <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.webp" data-sizes="auto" alt="清水尚辉" class="lazyload">
+  <div class="sidebar-author-name">清水尚辉</div>
+  <div class="sidebar-description">觉厨</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">5</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">1</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">7</div>
+  </div>
+</div>
+<div class="sidebar-social">
+  
+    <div class="icon-github sidebar-social-icon">
+      <a href=https://github.com/gfjdh itemprop="url" target="_blank" aria-label="github" rel="noopener external nofollow noreferrer"></a>
+    </div>
+  
+    <div class="icon-bilibili sidebar-social-icon">
+      <a href=https://space.bilibili.com/259514534 itemprop="url" target="_blank" aria-label="bilibili" rel="noopener external nofollow noreferrer"></a>
+    </div>
+  
+</div>
+<div class="sidebar-menu">
+  
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          
+            &#xe62b;
+          
+        </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          
+            &#xe62b;
+          
+        </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          
+            &#xe62b;
+          
+        </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          
+            &#xe62b;
+          
+        </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+    
+  
+</div>
+</div>
+      
+    
+  </div>
+  
+    
+      <div class="sidebar-btn-wrapper">
+        <div class="sidebar-toc-btn current"></div>
+        <div class="sidebar-common-btn"></div>
+      </div>
+    
+  
+</nav>
+
+    </div>
+    
+      <div class="site-search">
+        <div class="reimu-popup popup">
+          <div class="reimu-search">
+            <div class="reimu-search-input-icon"></div>
+            <div class="reimu-search-input" id="reimu-search-input"></div>
+            <div class="popup-btn-close"></div>
+          </div>
+          <div class="reimu-results">
+            <div id="reimu-stats"></div>
+            <div id="reimu-hits"></div>
+            <div id="reimu-pagination" class="reimu-pagination"></div>
+          </div>
+          <img class="reimu-bg" src="/images/reimu.png"/>
+        </div>
+      </div>
+    
+    
+    
+    
+<script src="https://npm.webcache.cn/lazysizes@5.3.2/lazysizes.min.js" integrity="sha384-3gT&#x2F;vsepWkfz&#x2F;ff7PpWNUeMzeWoH3cDhm&#x2F;A8jM7ouoAK0&#x2F;fP&#x2F;9bcHHR5kHq2nf+e" crossorigin="anonymous"></script>
+
+
+<script src="https://npm.webcache.cn/clipboard@2.0.11/dist/clipboard.min.js" integrity="sha384-J08i8An&#x2F;QeARD9ExYpvphB8BsyOj3Gh2TSh1aLINKO3L0cMSH2dN3E22zFoXEi0Q" crossorigin="anonymous"></script>
+
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+  
+<script src="/js/aos.js"></script>
+
+  <script>
+    var aosInit = () => {
+      AOS.init({
+        duration: 1000,
+        easing: "ease",
+        once: true,
+        offset: 50,
+      });
+    };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', aosInit);
+    } else {
+      aosInit();
+    }
+  </script>
+
+
+
+<script src="/js/pjax_script.js" data-pjax></script>
+
+
+
+  
+<script src="/js/generator_search.js" defer></script>
+
+
+
+
+
+
+  
+<script src="https://npm.webcache.cn/mouse-firework@0.1.1/dist/index.umd.js" integrity="sha384-8LyaidD9GPxQQgLJO&#x2F;WRw&#x2F;O2h3BoNq&#x2F;ApI&#x2F;ecpvM6RsrCz2qP2ppBXUKihP4V&#x2F;2d" crossorigin="anonymous"></script>
+
+  <script>
+    window.firework && window.firework(JSON.parse('{"excludeElements":["a","button"],"particles":[{"shape":"circle","move":["emit"],"easing":"easeOutExpo","colors":["var(--red-1)","var(--red-2)","var(--red-3)","var(--red-4)"],"number":20,"duration":[1200,1800],"shapeOptions":{"radius":[16,32],"alpha":[0.3,0.5]}},{"shape":"circle","move":["diffuse"],"easing":"easeOutExpo","colors":["var(--red-0)"],"number":1,"duration":[1200,1800],"shapeOptions":{"radius":20,"alpha":[0.2,0.5],"lineWidth":6}}]}'))
+  </script>
+
+
+
+
+
+
+
+
+
+
+<div id="lazy-script">
+  <div>
+    
+      
+      
+      <script data-pjax>
+        window.REIMU_POST = {
+          author: "清水尚辉",
+          title: "校园网突然连不上：一个 0x525、一次版本错乱，和一串连锁反应",
+          url: "https://gfjdh.github.io/2026/11/25/windows-8021x-0x525-rdsh/",
+          excerpt: "",
+          description: "",
+          stripContent: " 2026-11-25 记。一台 Windows 10 22H2 笔记本，WPA2-Enterprise 校园网突然认证失败，排查到最后发现根因跟网络一点关系都没有。  一、症状11 月 16 日下午开始，笔记本连不上学校 Wi-Fi（CAMPUS-WIFI）。  点连接，转一两秒，提示”无法连接到这个网络” 宿舍 Wi-Fi、手机热点都正常 密码肯定没改过，同一账号在手机上能用  CAMPUS-WIFI 是 WPA2-Enterprise：外层 PEAP，内层 MSCHAPv2，用账号认证，不",
+          date: "Wed Nov 25 2026 03:00:00 GMT+0800",
+          updated: "Wed Nov 25 2026 03:08:15 GMT+0800",
+          cover: "/images/banner.webp",
+        };
+      </script>
+       
+    
+    
+      
+        
+<script src="/js/insert_highlight.js" data-pjax></script>
+
+        
+      
+    
+    
+      <script type="module" data-pjax>
+        const PhotoSwipeLightbox = (await safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe-lightbox.esm.min.js", "sha384-DiL6M/gG+wmTxmCRZyD1zee6lIhawn5TGvED0FOh7fXcN9B0aZ9dexSF/N6lrZi/")).default;
+        
+        const pswp = () => {
+          if (_$$('.article-entry a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-entry',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+            }).init();
+          }
+          if(_$$('.article-gallery a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-gallery',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+            }).init();
+          }
+          window.lightboxStatus = 'done';
+          window.removeEventListener('lightbox:ready', pswp);
+        }
+        if(window.lightboxStatus === 'ready') {
+          pswp()
+        } else {
+          window.addEventListener('lightbox:ready', pswp);
+        }
+      </script>
+      
+        
+
+
+
+
+
+
+
+
+<script data-pjax>
+  var loadScript = (src, integrity) => {
+    const script = document.createElement('script');
+    script.src = src;
+    if (integrity) script.integrity = integrity;
+    script.crossOrigin = 'anonymous';
+    return script;
+  };
+
+  var commentConfigKeys = ['valine', 'waline', 'twikoo', 'gitalk', 'giscus'];
+  var commentConfig = {
+    valine: {
+      enable: false,
+      load: () => {
+        const container = document.querySelector('.valine-comment');
+        if (!container) return;
+        container.style.display = 'block';
+
+        const script = loadScript(
+          'https://npm.webcache.cn/valine@1.5.1/dist/Valine.min.js',
+          'sha384-3ma91AExDeMAZ1rjTjaP8V2A2obQE+s5ltKRwYlwdpArz9xVbp0tF3b0VV2ACNPn'
+        );
+        script.onload = () => {
+          var GUEST_INFO = ['nick', 'mail', 'link'];
+          var guest_info = 'nick,mail,link'.split(',').filter((item) => {
+            return GUEST_INFO.indexOf(item) > -1
+          });
+          var recordIP = JSON.parse('true');
+          var highlight = JSON.parse('true');
+          var visitor = JSON.parse('false');
+          var serverURLs = undefined;
+
+          if (window.Valine) {
+            new Valine({
+              el: '.valine-comment',
+              appId: "",
+              appKey: "",
+              placeholder: "Just go go",
+              pageSize: '10',
+              avatar: 'mp',
+              lang: document.documentElement.lang || 'en',
+              recordIP: recordIP,
+              highlight: highlight,
+              visitor: visitor,
+              requiredFields: guest_info,
+              path: window.location.pathname,
+              serverURLs
+            });
+          }
+        };
+        document.head.appendChild(script);
+      }
+    },
+    waline: {
+      enable: true,
+      load: async () => {
+        const container = document.querySelector('.waline-comment');
+        if (!container) return;
+        container.style.display = 'block';
+
+        let walineInit;
+        const walineCdn = 'https://npm.webcache.cn/@waline/client@2.15.8/dist/waline.mjs';
+        const walineIntegrity = 'sha384-9sbqJjrfGjbkI6/PI4nU/MvBfEmkkPC4YK9I4zBeMIf1CVCZdCMH/KinBEAZII/5';
+
+        const module = await safeImport(walineCdn, walineIntegrity);
+        walineInit = module.init;
+
+        window.walineInstance = walineInit({
+          el: '.waline-comment',
+          serverURL: 'https://gfjdh-comment.vercel.app/',
+          lang: document.documentElement.lang || 'en',
+          locale: {},
+          emoji: ["https://unpkg.com/@waline/emojis@1.2.0/weibo","https://unpkg.com/@waline/emojis@1.2.0/alus","https://unpkg.com/@waline/emojis@1.2.0/bilibili","https://unpkg.com/@waline/emojis@1.2.0/qq","https://unpkg.com/@waline/emojis@1.2.0/tieba","https://unpkg.com/@waline/emojis@1.2.0/tw-emoji"],
+          meta: ["nick","mail","link"],
+          requiredMeta: ["nick","mail"],
+          wordLimit: JSON.parse('0'),
+          comment: true,
+          pageSize: JSON.parse('10'),
+          dark: 'html[data-theme="dark"]',
+          pageview: JSON.parse('true'),
+        });
+      }
+    },
+    twikoo: {
+      enable: false,
+      load: () => {
+        const container = document.querySelector('.twikoo-comment');
+        if (!container) return;
+        container.style.display = 'block';
+
+        const script = loadScript(
+          'https://npm.webcache.cn/twikoo@1.6.44/dist/twikoo.all.min.js',
+          'sha384-kwWLC0HjeZZnVPqCJ1AncI8tsk+kQqF9TbAmCclcc9Z0hGkfgHRzeQZxmdmZhE0K'
+        );
+
+        script.onload = () => {
+          if (window.twikoo) {
+            twikoo.init({
+              envId: '',
+              el: '.twikoo-comment',
+              region: '',
+              lang: document.documentElement.lang || 'en',
+            });
+
+            twikoo.getCommentsCount({
+              envId: '',
+              region: '',
+              urls: [
+                '/about/index.html'
+              ],
+              includeReply: false
+            }).then((res) => {
+              _$('.twikoo-comment-count').innerText = res[0].count;
+            }).catch((err) => {
+              console.error(err);
+            });
+          }
+        } 
+        document.head.appendChild(script);
+      }
+    },
+    gitalk: {
+      enable: false,
+      load: () => {
+        const container = document.querySelector('.gitalk-comment');
+        if (!container) return;
+        container.style.display = 'block';
+
+        const script = loadScript(
+          'https://npm.webcache.cn/gitalk@1.8.0/dist/gitalk.min.js',
+          'sha384-kspnZUWBoSWwoJHa0hBCXYbHGbhvU/lcEH5O8eVbSDhbPwsiVUTp/aGX/z/5EuMA'
+        );
+
+        script.onload = () => {
+          if (false) {
+            const md5Script = loadScript(
+              'https://npm.webcache.cn/blueimp-md5@2.19.0/js/md5.min.js',
+              'sha384-JmVtRz6RWiXnA14QbIOJzPuU3MidULOpBP66deeLLyyoF4Tr/gZlbkHkL6vTthxH'
+            );
+            md5Script.onload = initGitalk;
+            document.head.appendChild(md5Script);
+          } else {
+            initGitalk();
+          }
+        }
+        document.head.appendChild(script);
+
+        function initGitalk() {
+          var gitalkId = location.pathname;
+          var gitalk = new Gitalk({
+            clientID: '',
+            clientSecret: '',
+            repo: '',
+            owner: '',
+            admin: null,
+            id: gitalkId,
+            distractionFreeMode: false,
+            language: document.documentElement.lang || 'en',
+          })
+          gitalk.render('gitalk-comment');
+        }
+      }
+    },
+    giscus: {
+      enable: false,
+      load: () => {
+        const container = document.querySelector('.giscus-comment');
+        if (!container) return;
+        container.style.display = 'block';
+
+        // 删除可能已存在的 giscus 脚本和 iframe
+        const existingScript = container.querySelector('script[src*="giscus.app/client.js"]');
+        if (existingScript) existingScript.remove();
+        const existingFrame = document.querySelector('iframe.giscus-frame');
+        if (existingFrame) existingFrame.remove();
+
+        const giscusScript = document.createElement('script');
+        const domMode = document.documentElement.getAttribute("data-theme");
+
+        const docLang = document.documentElement.lang || 'en';
+        const langBase = docLang.split('-')[0];
+        const supportedLangs = ['ar', 'be', 'bg', 'ca', 'cs', 'da', 'de', 'en', 
+        'eo', 'es', 'eu', 'fa', 'fr', 'gr', 'hbs', 'he', 'hu', 'id', 'it', 'ja', 
+        'kh', 'ko', 'nl', 'pl', 'pt', 'ro', 'ru', 'th', 'tr', 'uk', 'uz', 'vi', 'zh-CN', 'zh-HK', 'zh-TW'];
+        const giscusLang = supportedLangs.includes(docLang) ? docLang : supportedLangs.includes(langBase) ? langBase : 'en';
+
+        giscusScript.src = 'https://giscus.app/client.js';
+        giscusScript.setAttribute('data-repo', '');
+        giscusScript.setAttribute('data-repo-id', '');
+        giscusScript.setAttribute('data-category', ''); 
+        giscusScript.setAttribute('data-category-id', '');
+        giscusScript.setAttribute('data-mapping', '0');
+        giscusScript.setAttribute('data-strict', '0');
+        giscusScript.setAttribute('data-reactions-enabled', '1');
+        giscusScript.setAttribute('data-emit-metadata', '0');
+        giscusScript.setAttribute('data-input-position', 'bottom');
+        giscusScript.setAttribute('data-theme', domMode === 'dark' ? 'dark' : 'light');
+        giscusScript.setAttribute('data-lang', giscusLang);
+        giscusScript.setAttribute('crossorigin', 'anonymous');
+        giscusScript.async = true;
+        container.appendChild(giscusScript);
+        document.body.addEventListener('light-theme-set', () => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: { setConfig: { theme: 'light' } } }, 'https://giscus.app');
+        });
+        document.body.addEventListener('dark-theme-set', () => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: { setConfig: { theme: 'dark' } } }, 'https://giscus.app');
+        });
+      }
+    }
+  }
+  commentConfig.enable = commentConfigKeys.some(key => commentConfig[key].enable);
+
+  var defaultComment = '';
+  if (commentConfig.enable) {
+    // 1. 首先检查localStorage中是否有保存的评论类型
+    var savedCommentType = localStorage.getItem('commentType');
+    
+    // 2. 如果localStorage中有值且对应的评论系统可用，就使用它
+    if (savedCommentType) {
+      if (commentConfig[savedCommentType]?.enable) {
+        defaultComment = savedCommentType;
+      }
+    }
+    
+    // 3. 如果localStorage无效，检查配置的默认评论系统
+    if (!defaultComment) {
+      var configDefault = 'waline';
+      if (commentConfig[configDefault]?.enable) {
+        defaultComment = configDefault;
+      }
+    }
+    
+    // 4. 如果前两项都无效，按指定顺序找到第一个可用的评论系统
+    if (!defaultComment) {
+      defaultComment = commentConfigKeys.find(sys => commentConfig[sys].enable) || '';
+    }
+  }
+  function loadComments() {
+    if (!commentConfig.enable) return;
+    // 评论组件加载状态跟踪
+    const loadedComments = {
+      valine: false,
+      waline: false,
+      twikoo: false,
+      gitalk: false,
+      giscus: false
+    };
+
+    // 隐藏所有评论容器
+    const hideAllComments = () => {
+      const commentContainers = document.querySelectorAll('.comment');
+      commentContainers.forEach(container => {
+        container.style.display = 'none';
+      });
+    };
+
+    // 按需加载评论系统
+    const loadCommentSystem = (type) => {
+      if (loadedComments[type]) {
+        // 如果已加载，只需显示对应容器
+        document.querySelector(`.${type}-comment`).style.display = 'block';
+        return;
+      }
+
+      // 根据类型加载对应的脚本
+      commentConfig[type]?.load();
+      loadedComments[type] = true;
+    };
+
+    // 评论组件选择器
+    const changeActiveCommentItems = (item) => {
+      const commentItems = document.querySelectorAll('.selector-item');
+      for (let i = 0; i < commentItems.length; i++) {
+        commentItems[i].classList.remove('active');
+      }
+      item.classList.add('active');
+
+      // 获取要加载的评论系统类型
+      const commentType = item.getAttribute('data-selector');
+
+      // 隐藏所有评论系统
+      hideAllComments();
+
+      // 加载选中的评论系统
+      loadCommentSystem(commentType);
+    };
+
+    const commentInit = () => {
+      // 评论组件选择器点击事件
+      const commentItems = document.querySelectorAll('.selector-item');
+      for (let item of commentItems) {
+        item.addEventListener('click', () => {
+          // 保存选择器状态
+          const commentType = item.getAttribute('data-selector');
+          window.localStorage.setItem('commentType', commentType);
+          // 切换选中状态
+          changeActiveCommentItems(item);
+        });
+      }
+
+      // 检查是否需要加载默认评论系统
+      if (defaultComment) {
+        const defaultSelectorItem = document.querySelector(`[data-selector="${defaultComment}"]`);
+        if (!defaultSelectorItem) return;
+        defaultSelectorItem.style.display = 'block';
+        defaultSelectorItem.classList.add('active');
+        loadCommentSystem(defaultComment);
+      }
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', commentInit);
+    } else {
+      commentInit();
+    }
+  };
+  loadComments();
+</script>
+
+      
+    
+  </div>
+</div>
+
+
+  <script>
+    console.log(String.raw`%c 
+ ______     ______     __     __    __     __  __    
+/\  == \   /\  ___\   /\ \   /\ "-./  \   /\ \/\ \   
+\ \  __<   \ \  __\   \ \ \  \ \ \-./\ \  \ \ \_\ \  
+ \ \_\ \_\  \ \_____\  \ \_\  \ \_\ \ \_\  \ \_____\ 
+  \/_/ /_/   \/_____/   \/_/   \/_/  \/_/   \/_____/ 
+                                                  
+`,'color: #ff5252;')
+    console.log('%c Theme.Reimu v' + '1.9.1' + ' %c https://github.com/D-Sketon/hexo-theme-reimu ', 'color: white; background: #ff5252; padding:5px 0;', 'padding:4px;border:1px solid #ff5252;')
+  </script>
+  
+
+
+
+  
+<script src="https://npm.webcache.cn/busuanzi@2.3.0/bsz.pure.mini.js" integrity="sha384-0M75wtSkhjIInv4coYlaJU83+OypaRCIq2SukQVQX04eGTCBXJDuWAbJet56id+S" crossorigin="anonymous" async></script>
+
+
+
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      for (let registration of registrations) {
+        registration.unregister();
+      }
+    });
+  }
+</script>
+
+
+
+
+
+
+
+
+
+    
+  </body>
+  </html>
+

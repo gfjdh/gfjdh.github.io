@@ -1,0 +1,1866 @@
+
+  <!DOCTYPE html>
+  <html lang="zh-CN"  
+    
+      data-theme-mode="auto"
+    
+  >
+  <head>
+  
+  <meta charset="utf-8">
+  
+
+  
+
+  
+
+  <script>window.REIMU_CONFIG = {};window.REIMU_CONFIG.icon_font = '4552607_4k4bc36ef96';window.REIMU_CONFIG.clipboard_tips = {"success":{"en":"Copy successfully (*^▽^*)","zh-CN":"复制成功 (*^▽^*)","zh-TW":"複製成功 (*^▽^*)","ja":"コピー成功 (*^▽^*)","pt-BR":"Copiado com sucesso (*^▽^*)"},"fail":{"en":"Copy failed (ﾟ⊿ﾟ)ﾂ","zh-CN":"复制失败 (ﾟ⊿ﾟ)ﾂ","zh-TW":"複製失敗 (ﾟ⊿ﾟ)ﾂ","ja":"コピー失敗 (ﾟ⊿ﾟ)ﾂ","pt-BR":"Falha ao copiar (ﾟ⊿ﾟ)ﾂ"},"copyright":{"enable":false,"count":50,"license_type":"by-nc-sa"}};window.REIMU_CONFIG.clipboard_tips.copyright.content = '本博客所有文章除特别声明外，均采用 BY-NC-SA 许可协议。转载请注明出处！';window.REIMU_CONFIG.code_block = {"expand":true};window.REIMU_CONFIG.base = 'https://gfjdh.github.io';</script>
+  
+  <title>
+    刷个 BIOS，我把自己锁在了电脑外面——一次 Windows 卡顿排查与自救全记录 |
+    
+    清水乡
+  </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  
+  
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin><link rel="preload" as="style" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CNoto%20Serif%20SC:400,400italic,700,700italic&display=swap"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CNoto%20Serif%20SC:400,400italic,700,700italic&display=swap" media="print" onload="this.media&#x3D;&#39;all&#39;">
+  
+  
+    <link rel="preload" href="//at.alicdn.com/t/c/font_4552607_4k4bc36ef96.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  
+  
+    
+<link rel="stylesheet" href="/css/loader.css">
+
+  
+  
+    <meta name="description" content="代笔说明 这篇文章由 AI（DeepSeek）根据我提供的排查日志、系统数据和对话记录整理成文，不是我亲手写的。文中第一人称的「我」指我本人，所有事实、数字、时间线和踩过的坑都来自实际发生的过程；AI 负责组织、润色和补全技术解释。 如果你觉得哪里写得不对，那多半是 AI 的锅，不是事实的锅。   楔子：凌晨四点，我坐在一台进不去的电脑前我的笔记本是 ASUS ROG Strix G713QY，">
+<meta property="og:type" content="article">
+<meta property="og:title" content="刷个 BIOS，我把自己锁在了电脑外面——一次 Windows 卡顿排查与自救全记录">
+<meta property="og:url" content="https://gfjdh.github.io/2026/11/15/windows-hitch-debug/index.html">
+<meta property="og:site_name" content="清水乡">
+<meta property="og:description" content="代笔说明 这篇文章由 AI（DeepSeek）根据我提供的排查日志、系统数据和对话记录整理成文，不是我亲手写的。文中第一人称的「我」指我本人，所有事实、数字、时间线和踩过的坑都来自实际发生的过程；AI 负责组织、润色和补全技术解释。 如果你觉得哪里写得不对，那多半是 AI 的锅，不是事实的锅。   楔子：凌晨四点，我坐在一台进不去的电脑前我的笔记本是 ASUS ROG Strix G713QY，">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-11-15T08:45:00.000Z">
+<meta property="article:modified_time" content="2026-11-15T08:57:56.552Z">
+<meta property="article:author" content="清水尚辉">
+<meta property="article:tag" content="Windows">
+<meta property="article:tag" content="PowerShell">
+<meta property="article:tag" content="踩坑">
+<meta property="article:tag" content="性能排查">
+<meta property="article:tag" content="硬件">
+<meta name="twitter:card" content="summary">
+  
+  
+    <link rel="alternate" href="/atom.xml" title="清水乡" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/images/favicon.ico">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  <link rel="preload" as="style" onload="this.onload&#x3D;null;this.rel&#x3D;&#39;stylesheet&#39;" href="https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.css" integrity="sha384-IfxC36XL&#x2F;toUyJ939C73PcgMuRzAZuIzZxE38drsmO5p6jD7ei+Zx&#x2F;1oA&#x2F;0l8ysE" crossorigin="anonymous">
+  
+  
+    
+      
+<link rel="stylesheet" href="https://npm.webcache.cn/@waline/client@2.15.8/dist/waline.css" integrity="sha384-vltfZtesCdl6NYVcFVcjEaIi5RpNvZe9t7fXvq8twVtcoy+Ub9QgnxUYJmwOhYCK" crossorigin="anonymous">
+
+    
+  
+  
+  
+    
+<script src="https://npm.webcache.cn/pace-js@1.2.4/pace.min.js" integrity="sha384-k6YtvFUEIuEFBdrLKJ3YAUbBki333tj1CSUisai5Cswsg9wcLNaPzsTHDswp4Az8" crossorigin="anonymous"></script>
+
+  
+  
+    
+<link rel="stylesheet" href="https://npm.webcache.cn/@reimujs/aos@0.1.2/dist/aos.css" integrity="sha384-GMRP93c6Hkz9JVKGAuRR3nTS7M07RwPgTFenXiosjq2VbVgvdDNcz1g6Mkj8AONa" crossorigin="anonymous">
+
+  
+  
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+  <body>
+    
+    
+  <div id='loader'>
+    <div class="loading-left-bg loading-bg"></div>
+    <div class="loading-right-bg loading-bg"></div>
+    <div class="spinner-box">
+      <div class="loading-taichi rotate">
+        
+          <svg width="150" height="150" viewBox="0 0 1024 1024" class="icon" version="1.1" xmlns="https://www.w3.org/2000/svg" shape-rendering="geometricPrecision">
+            <path d="M303.5 432A80 80 0 0 1 291.5 592A80 80 0 0 1 303.5 432z" fill="var(--red-1, #ff5252)" />
+            <path d="M512 65A447 447 0 0 1 512 959L512 929A417 417 0 0 0 512 95A417 417 0 0 0 512 929L512 959A447 447 0 0 1 512 65z 
+           M512 95A417 417 0 0 1 929 512A208.5 208.5 0 0 1 720.5 720.5L720.5 592A80 80 0 0 0 720.5 432A80 80 0 0 0 720.5 592L720.5 720.5A208.5 208.5 0 0 1 512 512A208.5 208.5 0 0 0 303.5 303.5A208.5 208.5 0 0 0 95 512A417 417 0 0 1 512 95z" fill="var(--red-1, #ff5252)" />
+          </svg>
+        
+      </div>
+      
+      
+        
+      
+      <div class="loading-word">少女祈祷中...</div>
+    </div>
+  </div>
+  </div>
+  <script>
+    var time = null;
+    var startLoading = () => {
+      time = Date.now();
+      document.getElementById('loader').classList.remove("loading");
+    }
+    var endLoading = () => {
+      if (!time) {
+        document.body.style.overflow = 'auto';
+        document.getElementById('loader').classList.add("loading");
+      } else {
+        if (Date.now() - time > 500) {
+          time = null;
+          document.body.style.overflow = 'auto';
+          document.getElementById('loader').classList.add("loading");
+        } else {
+          setTimeout(endLoading, 500 - (Date.now() - time));
+          time = null;
+        }
+      }
+    }
+    window.addEventListener('DOMContentLoaded', endLoading);
+    document.getElementById('loader').addEventListener('click', endLoading);
+  </script>
+
+<div id="copy-tooltip" style="pointer-events: none; opacity: 0; transition: all 0.2s ease; position: fixed;top: 50%;left: 50%;z-index: 999;transform: translate(-50%, -50%);color: white;background: rgba(0, 0, 0, 0.5);padding: 10px 15px;border-radius: 10px;">
+</div>
+<div id="heatmap-tooltip"></div>
+
+
+    <div id="container">
+      <div id="wrap">
+        <div id="header-nav">
+  <nav id="main-nav">
+    
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+             
+              &#xe62b;
+             
+          </div>
+          <a class="main-nav-link" href="/">首页</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+             
+              &#xe62b;
+             
+          </div>
+          <a class="main-nav-link" href="/archives">归档</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+             
+              &#xe62b;
+             
+          </div>
+          <a class="main-nav-link" href="/about">关于</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+             
+              &#xe62b;
+             
+          </div>
+          <a class="main-nav-link" href="/friend">友链</a>
+        </span>
+      
+    
+    <a id="main-nav-toggle" class="nav-icon"></a>
+  </nav>
+  <nav id="sub-nav">
+    
+      <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS 订阅" target="_blank"></a>
+    
+    
+    
+      <a id="nav-search-btn" class="nav-icon popup-trigger" title="搜索"></a>
+    
+  </nav>
+  
+</div>
+<header id="header">
+  
+    
+      
+        <picture>
+          
+        </picture>
+        
+          <img  fetchpriority="high" src="/images/banner.webp" alt="刷个 BIOS，我把自己锁在了电脑外面——一次 Windows 卡顿排查与自救全记录">
+        
+      
+    
+  
+  <div id="header-outer">
+    <div id="header-title">
+      
+        
+        
+          <span id="logo">
+            <h1 data-aos="slide-up">刷个 BIOS，我把自己锁在了电脑外面——一次 Windows 卡顿排查与自救全记录</h1>
+          </span>
+        
+      
+      
+        
+        <h2 id="subtitle-wrap" data-aos="slide-down">
+          
+        </h2>
+      
+    </div>
+  </div>
+</header>
+
+        <div id="content"  class="sidebar-right" >
+          <aside id="sidebar">
+  
+  <div class="sidebar-wrapper-container sticky">
+  
+    
+    
+  
+ 
+  <div class="sidebar-wrapper">
+    <div class="sidebar-wrap" data-aos="fade-up">
+      
+        
+          <div class="sidebar-toc-sidebar"><h3 class="toc-title">文章目录</h3>
+<div class="sidebar-toc-wrapper toc-div-class" >
+  
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A5%94%E5%AD%90%EF%BC%9A%E5%87%8C%E6%99%A8%E5%9B%9B%E7%82%B9%EF%BC%8C%E6%88%91%E5%9D%90%E5%9C%A8%E4%B8%80%E5%8F%B0%E8%BF%9B%E4%B8%8D%E5%8E%BB%E7%9A%84%E7%94%B5%E8%84%91%E5%89%8D"><span class="toc-number">1.</span> <span class="toc-text">楔子：凌晨四点，我坐在一台进不去的电脑前</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%AC%AC%E4%B8%80%E9%83%A8%E5%88%86%EF%BC%9A%E9%82%A3%E4%B8%AA%E6%AF%8F-19-%E5%88%86%E9%92%9F%E5%8D%A1%E4%B8%80%E6%AC%A1%E7%9A%84%E9%97%AE%E9%A2%98"><span class="toc-number"></span> <span class="toc-text">第一部分：那个每 19 分钟卡一次的问题</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-1-%E7%97%87%E7%8A%B6%EF%BC%9A%E4%B8%80%E5%8D%A1%E4%B8%80%E5%8D%A1%E7%9A%84%EF%BC%8C%E5%A3%B0%E9%9F%B3%E8%BF%98%E5%B8%A6%E7%88%86%E9%9F%B3"><span class="toc-number">1.</span> <span class="toc-text">1.1 症状：一卡一卡的，声音还带爆音</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-2-%E5%85%88%E6%8E%92%E9%99%A4%EF%BC%9A%E4%B8%8D%E6%98%AF%E8%B4%9F%E8%BD%BD%EF%BC%8C%E4%B8%8D%E6%98%AF%E9%A9%B1%E5%8A%A8"><span class="toc-number">2.</span> <span class="toc-text">1.2 先排除：不是负载，不是驱动</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%8B%E4%BB%B6%E6%97%A5%E5%BF%97%EF%BC%9A%E5%85%A8%E7%A9%BA"><span class="toc-number">2.1.</span> <span class="toc-text">事件日志：全空</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A3%B0%E9%9F%B3%E5%92%8C%E7%94%BB%E9%9D%A2%E6%98%AF%E5%90%8C%E4%B8%80%E4%B8%AA%E4%BA%8B%E4%BB%B6"><span class="toc-number">2.2.</span> <span class="toc-text">声音和画面是同一个事件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%9E%E7%9B%91%E6%8E%A7%E7%BA%BF%E7%A8%8B%E4%B9%9F%E8%A2%AB%E5%86%BB%E4%BD%8F"><span class="toc-number">2.3.</span> <span class="toc-text">连监控线程也被冻住</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-3-%E9%80%A0%E4%B8%80%E6%8A%8A%E5%B0%BA%E5%AD%90%EF%BC%9A%E4%B8%BA%E4%BB%80%E4%B9%88%E7%8E%B0%E6%88%90%E5%B7%A5%E5%85%B7%E5%85%A8%E9%83%BD%E4%B8%8D%E8%A1%8C"><span class="toc-number">3.</span> <span class="toc-text">1.3 造一把尺子：为什么现成工具全都不行</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%BB%E5%8A%A1%E7%AE%A1%E7%90%86%E5%99%A8%E3%80%81LatencyMon-%E4%B8%BA%E4%BB%80%E4%B9%88%E7%9C%8B%E4%B8%8D%E8%A7%81"><span class="toc-number">3.1.</span> <span class="toc-text">任务管理器、LatencyMon 为什么看不见</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#WPR-%E8%B7%91%E4%B8%8D%E8%B5%B7%E6%9D%A5"><span class="toc-number">3.2.</span> <span class="toc-text">WPR 跑不起来</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC%E4%B8%80%E4%B8%AA%E6%8E%A2%E9%92%88%E9%AA%97%E4%BA%86%E6%88%91"><span class="toc-number">3.3.</span> <span class="toc-text">第一个探针骗了我</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-4-%E7%9C%9F%E6%AD%A3%E7%9A%84%E8%AF%81%E6%8D%AE%EF%BC%9Acore0-%E7%9A%84%E4%B8%AD%E6%96%AD%E4%B8%8A%E4%B8%8B%E6%96%87%E8%A2%AB%E7%8B%AC%E5%8D%A0"><span class="toc-number">4.</span> <span class="toc-text">1.4 真正的证据：core0 的中断上下文被独占</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#ISR-%E5%8D%A0%E6%BB%A1-1-2-%E7%A7%92"><span class="toc-number">4.1.</span> <span class="toc-text">ISR 占满 1.2 秒</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%8D%E6%98%AF%E4%B8%AD%E6%96%AD%E9%A3%8E%E6%9A%B4%E2%80%94%E2%80%94%E6%81%B0%E6%81%B0%E7%9B%B8%E5%8F%8D"><span class="toc-number">4.2.</span> <span class="toc-text">不是中断风暴——恰恰相反</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8D%81%E5%85%AD%E4%B8%AA%E6%A0%B8%E5%90%8C%E6%97%B6%E5%81%9C"><span class="toc-number">4.3.</span> <span class="toc-text">十六个核同时停</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E4%B8%AA%E5%85%B3%E9%94%AE%E9%AA%8C%E8%AF%81%EF%BC%9A%E4%B8%8D%E6%98%AF%E3%80%8C%E7%B3%BB%E7%BB%9F%E6%97%B6%E9%92%9F%E5%86%BB%E4%BD%8F%E4%BA%86%E3%80%8D"><span class="toc-number">4.4.</span> <span class="toc-text">一个关键验证：不是「系统时钟冻住了」</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-5-%E6%88%91%E7%8A%AF%E7%9A%84%E4%B8%A4%E4%B8%AA%E9%94%99"><span class="toc-number">5.</span> <span class="toc-text">1.5 我犯的两个错</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%94%99%E8%AF%AF%E4%B8%80%EF%BC%9A%E6%88%91%E7%94%A8%E6%8E%A2%E9%92%88%E6%8A%8A%E9%94%AE%E9%BC%A0%E5%B9%B2%E6%B2%A1%E4%BA%86"><span class="toc-number">5.1.</span> <span class="toc-text">错误一：我用探针把键鼠干没了</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%94%99%E8%AF%AF%E4%BA%8C%EF%BC%9A%E6%88%91%E6%8A%8A%E3%80%8C19-32-%E5%88%86%E9%92%9F%E7%B2%BE%E7%A1%AE%E5%8F%AF%E9%A2%84%E6%B5%8B%E3%80%8D%E8%AF%B4%E5%BE%97%E5%A4%AA%E6%BB%A1"><span class="toc-number">5.2.</span> <span class="toc-text">错误二：我把「19.32 分钟精确可预测」说得太满</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%AC%AC%E4%BA%8C%E9%83%A8%E5%88%86%EF%BC%9A%E8%BF%BD-fTPM%EF%BC%8C%E8%BF%BD%E5%88%B0-BIOS-%E9%97%A8%E5%8F%A3"><span class="toc-number"></span> <span class="toc-text">第二部分：追 fTPM，追到 BIOS 门口</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#2-1-%E5%AB%8C%E7%96%91%E6%8E%92%E5%BA%8F"><span class="toc-number">1.</span> <span class="toc-text">2.1 嫌疑排序</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-2-%E7%AC%AC%E4%B8%80%E6%AD%A5%EF%BC%9ABIOS-%E9%87%8C%E6%89%BE%E4%B8%8D%E5%88%B0"><span class="toc-number">2.</span> <span class="toc-text">2.2 第一步：BIOS 里找不到</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-3-%E7%AC%AC%E4%BA%8C%E6%AD%A5%EF%BC%9A%E7%9B%B4%E6%8E%A5%E8%A7%A3%E5%8C%85-BIOS-%E9%95%9C%E5%83%8F%E7%9C%8B%E8%8F%9C%E5%8D%95"><span class="toc-number">3.</span> <span class="toc-text">2.3 第二步：直接解包 BIOS 镜像看菜单</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-4-%E7%AC%AC%E4%B8%89%E6%AD%A5%EF%BC%9A%E5%88%B7-BIOS-335"><span class="toc-number">4.</span> <span class="toc-text">2.4 第三步：刷 BIOS 335</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-5-%E7%AC%AC%E5%9B%9B%E6%AD%A5%EF%BC%9A%E5%88%B7%E5%AE%8C%E4%BA%86%EF%BC%8C%E8%8F%9C%E5%8D%95%E8%BF%98%E6%98%AF%E6%B2%A1%E5%87%BA%E7%8E%B0"><span class="toc-number">5.</span> <span class="toc-text">2.5 第四步：刷完了，菜单还是没出现</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%AC%AC%E4%B8%89%E9%83%A8%E5%88%86%EF%BC%9A%E5%88%B7%E5%AE%8C%E4%B9%8B%E5%90%8E%EF%BC%8C%E7%94%B5%E8%84%91%E8%BF%9B%E4%B8%8D%E5%8E%BB%E4%BA%86"><span class="toc-number"></span> <span class="toc-text">第三部分：刷完之后，电脑进不去了</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#3-1-%E6%AD%BB%E5%BE%AA%E7%8E%AF%E7%9A%84%E5%BD%A2%E7%8A%B6"><span class="toc-number">1.</span> <span class="toc-text">3.1 死循环的形状</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-2-%E6%8B%86%E8%A7%A3%EF%BC%9A%E5%85%B6%E5%AE%9E%E6%98%AF%E4%B8%89%E4%B8%AA%E9%97%AE%E9%A2%98%E5%8F%A0%E5%9C%A8%E4%B8%80%E8%B5%B7"><span class="toc-number">2.</span> <span class="toc-text">3.2 拆解：其实是三个问题叠在一起</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC%E4%B8%80%E5%B1%82%EF%BC%9APIN-%E5%87%AD%E8%AF%81%E5%A4%B1%E6%95%88"><span class="toc-number">2.1.</span> <span class="toc-text">第一层：PIN 凭证失效</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC%E4%BA%8C%E5%B1%82%EF%BC%9A%E9%87%8D%E5%BB%BA-PIN-%E9%9C%80%E8%A6%81%E5%9C%A8%E7%BA%BF%E9%AA%8C%E8%AF%81"><span class="toc-number">2.2.</span> <span class="toc-text">第二层：重建 PIN 需要在线验证</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC%E4%B8%89%E5%B1%82%EF%BC%9ANCSI-%E8%AE%A4%E4%B8%BA%E8%BF%99%E5%8F%B0%E7%94%B5%E8%84%91%E6%B2%A1%E6%9C%89%E7%BD%91"><span class="toc-number">2.3.</span> <span class="toc-text">第三层：NCSI 认为这台电脑没有网</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-3-%E6%88%91%E8%AF%95%E8%BF%87%E7%9A%84%E5%8D%81%E5%87%A0%E7%A7%8D%E6%96%B9%E6%B3%95%EF%BC%88%E6%8C%89%E6%97%B6%E9%97%B4%E9%A1%BA%E5%BA%8F%EF%BC%89"><span class="toc-number">3.</span> <span class="toc-text">3.3 我试过的十几种方法（按时间顺序）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B0%9D%E8%AF%95-7%EF%BC%9AWinRE-%E9%87%8C%E7%B3%BB%E7%BB%9F%E7%9B%98%E4%B8%8D%E6%98%AF-C"><span class="toc-number">3.1.</span> <span class="toc-text">尝试 7：WinRE 里系统盘不是 C:</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B0%9D%E8%AF%95-8%EF%BC%9A%E6%B3%A8%E5%86%8C%E8%A1%A8%E5%8A%A0%E8%BD%BD%E9%85%8D%E7%BD%AE%E5%8D%95%E5%85%83%E8%A2%AB%E6%8B%92"><span class="toc-number">3.2.</span> <span class="toc-text">尝试 8：注册表加载配置单元被拒</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B0%9D%E8%AF%95-11%E2%80%9312%EF%BC%9Autilman-%E5%90%8E%E9%97%A8-%E6%94%B9-SAM"><span class="toc-number">3.3.</span> <span class="toc-text">尝试 11–12：utilman 后门 + 改 SAM</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B0%9D%E8%AF%95-13%E2%80%9314%EF%BC%9A%E6%96%B0%E5%BB%BA%E6%9C%AC%E5%9C%B0%E8%B4%A6%E6%88%B7%EF%BC%8C%E7%84%B6%E5%90%8E%E5%8D%A1%E5%9C%A8%E5%85%B3%E8%81%94%E5%BE%AE%E8%BD%AF%E8%B4%A6%E6%88%B7"><span class="toc-number">3.4.</span> <span class="toc-text">尝试 13–14：新建本地账户，然后卡在关联微软账户</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B0%9D%E8%AF%95-15%EF%BC%9A%E6%B8%85%E7%BC%93%E5%AD%98%E5%A4%A7%E6%B3%95%EF%BC%88%E5%85%A8%E6%97%A0%E6%95%88%EF%BC%89"><span class="toc-number">3.5.</span> <span class="toc-text">尝试 15：清缓存大法（全无效）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%82%A3%E4%B8%80%E5%88%BB%E6%88%91%E6%84%8F%E8%AF%86%E5%88%B0%E8%87%AA%E5%B7%B1%E4%B8%80%E7%9B%B4%E5%9C%A8%E9%94%99%E7%9A%84%E6%96%B9%E5%90%91%E4%B8%8A"><span class="toc-number">3.6.</span> <span class="toc-text">那一刻我意识到自己一直在错的方向上</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-4-%E7%A0%B4%E5%B1%80%EF%BC%9A%E6%8A%8A%E4%B8%89%E4%B8%AA%E9%97%AE%E9%A2%98%E5%88%86%E5%BC%80%E7%9C%8B"><span class="toc-number">4.</span> <span class="toc-text">3.4 破局：把三个问题分开看</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-5-%E7%9C%9F%E6%AD%A3%E7%9A%84%E8%A7%A3%E6%B3%95"><span class="toc-number">5.</span> <span class="toc-text">3.5 真正的解法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-6-%E4%B8%BA%E4%BB%80%E4%B9%88%E8%BF%99%E4%B9%88%E9%9A%BE"><span class="toc-number">6.</span> <span class="toc-text">3.6 为什么这么难</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9B%A0%E4%B8%BA%E7%B3%BB%E7%BB%9F%E7%9A%84%E6%8F%90%E7%A4%BA%E6%98%AF%E3%80%8C%E6%AD%A3%E7%A1%AE%E4%BD%86%E6%97%A0%E7%94%A8%E3%80%8D%E7%9A%84"><span class="toc-number">6.1.</span> <span class="toc-text">因为系统的提示是「正确但无用」的</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9B%A0%E4%B8%BA%E4%B8%89%E4%B8%AA%E9%97%AE%E9%A2%98%E4%BA%92%E7%9B%B8%E6%8E%A9%E6%8A%A4"><span class="toc-number">6.2.</span> <span class="toc-text">因为三个问题互相掩护</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9B%A0%E4%B8%BA-AI-%E5%B8%AE%E4%B8%8D%E4%B8%8A%E5%BF%99"><span class="toc-number">6.3.</span> <span class="toc-text">因为 AI 帮不上忙</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%AC%AC%E5%9B%9B%E9%83%A8%E5%88%86%EF%BC%9A%E6%84%8F%E5%A4%96%E2%80%94%E2%80%94%E5%8D%A1%E9%A1%BF%E6%B6%88%E5%A4%B1%E4%BA%86"><span class="toc-number"></span> <span class="toc-text">第四部分：意外——卡顿消失了</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%94%A8%E7%BB%9F%E8%AE%A1%E8%AF%81%E6%98%8E%E5%AE%83%E7%9C%9F%E7%9A%84%E6%B6%88%E5%A4%B1%E4%BA%86"><span class="toc-number">1.</span> <span class="toc-text">用统计证明它真的消失了</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%A4%E6%8D%AE%E8%BF%AD%E4%BB%A3%EF%BC%9A%E5%AE%BD%E6%9D%BE%E5%88%A4%E6%8D%AE%E5%B7%AE%E7%82%B9%E8%AE%A9%E6%88%91%E5%BE%97%E5%87%BA%E7%9B%B8%E5%8F%8D%E7%BB%93%E8%AE%BA"><span class="toc-number">1.1.</span> <span class="toc-text">判据迭代：宽松判据差点让我得出相反结论</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B3%8A%E6%9D%BE%E6%A3%80%E9%AA%8C"><span class="toc-number">1.2.</span> <span class="toc-text">泊松检验</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%A1%BA%E4%BE%BF%E5%88%86%E6%B8%85%E4%BA%86%E4%B8%A4%E7%B1%BB%E3%80%8C%E5%8D%A1%E3%80%8D"><span class="toc-number">1.3.</span> <span class="toc-text">顺便分清了两类「卡」</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%98%E6%9C%89%E4%B8%80%E4%B8%AA%E5%8F%8D%E7%9B%B4%E8%A7%89%E7%9A%84%E5%8F%91%E7%8E%B0"><span class="toc-number">1.4.</span> <span class="toc-text">还有一个反直觉的发现</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%AC%AC%E4%BA%94%E9%83%A8%E5%88%86%EF%BC%9A%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93"><span class="toc-number"></span> <span class="toc-text">第五部分：经验总结</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%B3%E4%BA%8E%E6%8E%92%E6%9F%A5%E6%96%B9%E6%B3%95"><span class="toc-number">1.</span> <span class="toc-text">关于排查方法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%B3%E4%BA%8E%E8%87%AA%E6%95%91"><span class="toc-number">2.</span> <span class="toc-text">关于自救</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%B3%E4%BA%8E-Windows-%E5%86%85%E9%83%A8"><span class="toc-number">3.</span> <span class="toc-text">关于 Windows 内部</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%B3%E4%BA%8E-PowerShell%EF%BC%88%E8%B8%A9%E4%BA%86%E4%B8%80%E5%A0%86%E5%9D%91%EF%BC%89"><span class="toc-number">4.</span> <span class="toc-text">关于 PowerShell（踩了一堆坑）</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%90%8E%E8%AE%B0"><span class="toc-number"></span> <span class="toc-text">后记</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9C%80%E7%BB%88%E7%9A%84%E7%BB%93%E8%AE%BA"><span class="toc-number">1.</span> <span class="toc-text">最终的结论</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%A4%E4%BB%B6%E9%81%97%E7%95%99%E7%9A%84%E4%BA%8B"><span class="toc-number">2.</span> <span class="toc-text">两件遗留的事</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E5%8F%A5%E6%84%9F%E6%85%A8"><span class="toc-number">3.</span> <span class="toc-text">一句感慨</span></a></li></ol>
+  
+</div>
+</div>
+          <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.webp" data-sizes="auto" alt="清水尚辉" class="lazyload">
+  <div class="sidebar-author-name">清水尚辉</div>
+  <div class="sidebar-description">觉厨</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">5</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">1</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">7</div>
+  </div>
+</div>
+<div class="sidebar-social">
+  
+    <div class="icon-github sidebar-social-icon">
+      <a href=https://github.com/gfjdh itemprop="url" target="_blank" aria-label="github" rel="noopener external nofollow noreferrer"></a>
+    </div>
+  
+    <div class="icon-bilibili sidebar-social-icon">
+      <a href=https://space.bilibili.com/259514534 itemprop="url" target="_blank" aria-label="bilibili" rel="noopener external nofollow noreferrer"></a>
+    </div>
+  
+</div>
+<div class="sidebar-menu">
+  
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          
+            &#xe62b;
+          
+        </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          
+            &#xe62b;
+          
+        </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          
+            &#xe62b;
+          
+        </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          
+            &#xe62b;
+          
+        </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+    
+  
+</div>
+</div>
+        
+      
+      
+        
+          <div class="sidebar-btn-wrapper" style="position:static">
+            <div class="sidebar-toc-btn current"></div>
+            <div class="sidebar-common-btn"></div>
+          </div>
+        
+      
+    </div>
+  </div>
+  
+  <div class="sidebar-widget">
+  
+  </div>
+  
+  </div>
+  
+</aside>
+
+          <section id="main"><article id="post-windows-hitch-debug" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner" data-aos="fade-up">
+    <div class="article-meta">
+      <div class="article-date">
+  <span class="article-date-link icon-calendar" data-aos="zoom-in">
+    <time datetime="2026-11-15T08:45:00.000Z" itemprop="datePublished">2026-11-15</time>
+    <time style="display: none;" id="post-update-time">2026-11-15</time>
+  </span>
+  
+</div>
+
+      
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%8A%98%E8%85%BE%E8%AE%B0%E5%BD%95/" data-aos="zoom-in">折腾记录</a>
+  </div>
+
+
+    </div>
+    
+    <div class="hr-line"></div>
+    
+
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+      
+        <blockquote>
+<p><strong>代笔说明</strong></p>
+<p>这篇文章由 AI（DeepSeek）根据我提供的排查日志、系统数据和对话记录整理成文，<strong>不是我亲手写的</strong>。<br>文中第一人称的「我」指我本人，所有事实、数字、时间线和踩过的坑都来自实际发生的过程；<br>AI 负责组织、润色和补全技术解释。</p>
+<p>如果你觉得哪里写得不对，那多半是 AI 的锅，不是事实的锅。</p>
+</blockquote>
+<hr>
+<h2 id="楔子：凌晨四点，我坐在一台进不去的电脑前"><a href="#楔子：凌晨四点，我坐在一台进不去的电脑前" class="headerlink" title="楔子：凌晨四点，我坐在一台进不去的电脑前"></a>楔子：凌晨四点，我坐在一台进不去的电脑前</h2><p>我的笔记本是 ASUS ROG Strix G713QY，Ryzen 9 5900HX（8 核 16 线程），32GB 内存，RX 6800M 独显加核显，双 NVMe，Windows 10 企业版 19045。</p>
+<p>它有个毛病，持续了很久：<strong>每十几分钟，整台电脑卡住约 1.2 秒，画面、鼠标、声音同时冻住，声音卡出一声失真的爆音。</strong></p>
+<p>驱动全更新过，网上能搜的方法基本试遍了，没用。</p>
+<p>于是我花了十几个小时写工具、抓证据，最后定位到：<strong>BIOS 固件缺陷。</strong> 刷到新版本之后，卡顿消失了。</p>
+<p>但这个故事真正的高潮不在这里。</p>
+<p>刷完 BIOS 重启之后，<strong>我卡在了 Windows 锁屏界面，进不去系统了。</strong></p>
+<p>不是蓝屏，不是启动失败，是更荒诞的一种：锁屏要我设置 PIN，我输微软账号密码，最后一步报错；点跳过，黑屏一下，回到锁屏；网络还断了。重新联网，重新登录，再次报错。</p>
+<p>死循环。</p>
+<p>我从凌晨四点坐到第二天下午，中间试了十几种方法，把 WinRE、注册表、SAM 配置单元、utilman.exe 后门、本地账户、Dism++ 全折腾了一遍，才把电脑救回来。</p>
+<p><strong>而真正的根因，是一个跟密码毫无关系的东西。</strong></p>
+<p>这篇文章分两部分：前半部分讲怎么在一个「什么都不留下」的卡顿上造出证据，后半部分讲我如何把自己锁在电脑外面、又怎么爬出来。</p>
+<p>如果你只想看后者，直接跳到<strong>第三部分</strong>。</p>
+<hr>
+<h1 id="第一部分：那个每-19-分钟卡一次的问题"><a href="#第一部分：那个每-19-分钟卡一次的问题" class="headerlink" title="第一部分：那个每 19 分钟卡一次的问题"></a>第一部分：那个每 19 分钟卡一次的问题</h1><h2 id="1-1-症状：一卡一卡的，声音还带爆音"><a href="#1-1-症状：一卡一卡的，声音还带爆音" class="headerlink" title="1.1 症状：一卡一卡的，声音还带爆音"></a>1.1 症状：一卡一卡的，声音还带爆音</h2><ul>
+<li>不定时地，整台机器卡一下，<strong>画面、鼠标、声音同时受影响</strong></li>
+<li>声音不是断断续续，而是<strong>一声失真的杂音</strong>，像拉长的电流声或爆音</li>
+<li>每次大约 0.5–2 秒</li>
+<li>卡完之后<strong>没有任何其他迹象</strong>——不蓝屏、不重启、事件日志里什么都没有</li>
+<li><strong>跟负载完全无关</strong>，空着也卡，满载也卡</li>
+</ul>
+<h2 id="1-2-先排除：不是负载，不是驱动"><a href="#1-2-先排除：不是负载，不是驱动" class="headerlink" title="1.2 先排除：不是负载，不是驱动"></a>1.2 先排除：不是负载，不是驱动</h2><p>排查的第一步不是找原因，是缩小范围。</p>
+<h3 id="事件日志：全空"><a href="#事件日志：全空" class="headerlink" title="事件日志：全空"></a>事件日志：全空</h3><p>System、Application、Kernel-Power 三个日志，在卡顿时刻<strong>完全空白</strong>。没有 TDR（显卡超时恢复，事件 4101），没有存储错误，没有 ACPI 警告。</p>
+<p>这本身就是一条重要信息：<strong>能写事件日志的故障，都是被系统察觉到的故障。这个故障系统根本没察觉。</strong></p>
+<h3 id="声音和画面是同一个事件"><a href="#声音和画面是同一个事件" class="headerlink" title="声音和画面是同一个事件"></a>声音和画面是同一个事件</h3><p>我写了个探针，用静音的 WASAPI 共享模式渲染流，测音频回调的迟到情况：</p>
+<table>
+<thead>
+<tr>
+<th>卡顿</th>
+<th>坏帧数</th>
+<th>音频迟到数</th>
+<th>关系</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>01:23:10</td>
+<td>16</td>
+<td>16</td>
+<td>1:1</td>
+</tr>
+<tr>
+<td>01:25:55</td>
+<td>14</td>
+<td>14</td>
+<td>1:1</td>
+</tr>
+<tr>
+<td>02:01:39</td>
+<td>17</td>
+<td>15</td>
+<td>基本对应</td>
+</tr>
+</tbody></table>
+<p>全时段统计：<strong>93 次音频迟到中有 88 次（94.6%）与画面卡顿时间重叠。</strong></p>
+<p>这条排除了所有「单一子系统」的解释：</p>
+<ul>
+<li>显卡驱动 TDR 会让画面卡，但声音正常</li>
+<li>音频驱动爆音会让声音坏，但画面正常</li>
+<li>两个<strong>完全独立</strong>的子系统被同时阻塞 → 问题在它们共同的底层：系统定时或调度基准</li>
+</ul>
+<h3 id="连监控线程也被冻住"><a href="#连监控线程也被冻住" class="headerlink" title="连监控线程也被冻住"></a>连监控线程也被冻住</h3><p>监控程序里有个每 100ms 采样一次的线程，纯 CPU 计算、不做任何 I&#x2F;O。全时段它有 <strong>153 次迟到超过 150ms</strong>，最长 727ms。</p>
+<p>而且每次大卡顿发生时，这个线程恰好在卡顿开始前 41–89ms 停止输出，卡顿结束后才恢复。</p>
+<blockquote>
+<p>一个纯计算的线程被冻住 &#x3D; 那一刻<strong>整机真的没有在跑任何用户代码</strong>。</p>
+</blockquote>
+<h2 id="1-3-造一把尺子：为什么现成工具全都不行"><a href="#1-3-造一把尺子：为什么现成工具全都不行" class="headerlink" title="1.3 造一把尺子：为什么现成工具全都不行"></a>1.3 造一把尺子：为什么现成工具全都不行</h2><h3 id="任务管理器、LatencyMon-为什么看不见"><a href="#任务管理器、LatencyMon-为什么看不见" class="headerlink" title="任务管理器、LatencyMon 为什么看不见"></a>任务管理器、LatencyMon 为什么看不见</h3><p>因为它们看的是「有多少时间花在 DPC&#x2F;ISR」。而<strong>本机的 DPC&#x2F;ISR 计数器记账粒度是 15.625ms</strong>（1&#x2F;64 秒，一个时钟节拍）。</p>
+<p>我用 <code>NtQuerySystemInformation(SystemProcessorPerformanceInformation = 8)</code> 以 20ms 间隔连读 core0 的累计 DPC 时间，发现<strong>增量永远是 0 或恰好 15625 微秒</strong>。</p>
+<p>后果很严重：</p>
+<ul>
+<li>core0 的 DPC 百分比只会在 14.1% &#x2F; 28.2% &#x2F; 42.2% &#x2F; 56.3% 这些离散值上跳</li>
+<li>100ms 采样时峰值虚高 <strong>7 倍</strong>（33.46% vs 4.67%）</li>
+<li><code>timeBeginPeriod(1)</code> <strong>改不了</strong>这个粒度</li>
+</ul>
+<p>所以这类工具在本机测不出 1.2 秒的事件——它会被量化得面目全非。</p>
+<h3 id="WPR-跑不起来"><a href="#WPR-跑不起来" class="headerlink" title="WPR 跑不起来"></a>WPR 跑不起来</h3><p>Windows Performance Recorder 是这类问题的标准工具。本机全部失败：</p>
+<ul>
+<li>非管理员：<code>wpr -start</code> 报 <code>0xc5585011</code></li>
+<li>提权后：<code>wpr -stop</code> 报 <code>Cannot change thread mode after it is set. Error code: 0x80010106</code>（RPC_E_CHANGED_MODE）</li>
+<li><code>logman</code> 报 <code>Access is denied.</code></li>
+<li>WPA &#x2F; xperf 未安装</li>
+<li><strong>ETW 通道 DxgKrnl &#x2F; Dwm-Core &#x2F; Win32k &#x2F; Audio &#x2F; DXGI 本机全部不存在</strong></li>
+</ul>
+<p>这条路彻底堵死。</p>
+<h3 id="第一个探针骗了我"><a href="#第一个探针骗了我" class="headerlink" title="第一个探针骗了我"></a>第一个探针骗了我</h3><p>我最初写的是 2ms 高精度定时器探针。跑 60 秒，只测到 1 次 ≥8ms 的停顿。</p>
+<p><strong>看起来 CPU 层毫无问题。</strong></p>
+<p>但我犯了个错误：<strong>Windows 会把定时器合并（timer coalescing）</strong>。多个进程的定时器会被系统在同一时刻统一释放，所以定时器探针测出来的「同步停顿」大部分是假的，而真实的停顿反而被平滑掉了。</p>
+<p>必须用<strong>自旋探针</strong>——死循环读 <code>Stopwatch</code>，线程状态永远是 Runnable，永不睡眠，无法被合并。</p>
+<p>换成自旋之后，立刻测到 <strong>34 次&#x2F;分钟、每次 6–60ms</strong> 的停顿。</p>
+<blockquote>
+<p><strong>教训一：在 Windows 上测微秒级停顿，定时器探针是不可信的。必须自旋。</strong></p>
+</blockquote>
+<h2 id="1-4-真正的证据：core0-的中断上下文被独占"><a href="#1-4-真正的证据：core0-的中断上下文被独占" class="headerlink" title="1.4 真正的证据：core0 的中断上下文被独占"></a>1.4 真正的证据：core0 的中断上下文被独占</h2><h3 id="ISR-占满-1-2-秒"><a href="#ISR-占满-1-2-秒" class="headerlink" title="ISR 占满 1.2 秒"></a>ISR 占满 1.2 秒</h3><p>中断探针以 50ms 分辨率记录每核中断次数与 ISR&#x2F;DPC 时间。某次卡顿的逐条记录：</p>
+<table>
+<thead>
+<tr>
+<th>时刻</th>
+<th>采样间隔</th>
+<th>core0 ISR 占用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>02:20:44.105</td>
+<td>87.5 ms</td>
+<td><strong>89.3%</strong></td>
+</tr>
+<tr>
+<td>02:20:44.263</td>
+<td>148.8 ms</td>
+<td><strong>84.0%</strong></td>
+</tr>
+<tr>
+<td>02:20:44.405</td>
+<td>72.2 ms</td>
+<td><strong>86.5%</strong></td>
+</tr>
+<tr>
+<td>02:20:44.479</td>
+<td>73.8 ms</td>
+<td><strong>84.7%</strong></td>
+</tr>
+<tr>
+<td>02:20:44.788</td>
+<td>70.9 ms</td>
+<td><strong>88.2%</strong></td>
+</tr>
+<tr>
+<td>02:20:44.857</td>
+<td>68.8 ms</td>
+<td><strong>90.8%</strong></td>
+</tr>
+<tr>
+<td>02:20:44.939</td>
+<td>83.0 ms</td>
+<td><strong>94.1%</strong></td>
+</tr>
+<tr>
+<td>02:20:45.327</td>
+<td>132.2 ms</td>
+<td><strong>94.6%</strong></td>
+</tr>
+</tbody></table>
+<p><strong>连续 1.2 秒，core0 有 84–95% 的时间在中断上下文里</strong>，同期 DPC 几乎为 0。</p>
+<h3 id="不是中断风暴——恰恰相反"><a href="#不是中断风暴——恰恰相反" class="headerlink" title="不是中断风暴——恰恰相反"></a>不是中断风暴——恰恰相反</h3><p>这是整个排查里最反直觉的一条：</p>
+<table>
+<thead>
+<tr>
+<th>时段</th>
+<th>core0 中断速率</th>
+<th>全机中断速率</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>卡顿窗口（1.4 秒）</td>
+<td>1.44 次&#x2F;ms</td>
+<td>15.16 次&#x2F;ms</td>
+</tr>
+<tr>
+<td>其余全部时间（1433 秒）</td>
+<td>2.08 次&#x2F;ms</td>
+<td>22.20 次&#x2F;ms</td>
+</tr>
+<tr>
+<td><strong>倍数</strong></td>
+<td><strong>0.69×</strong></td>
+<td><strong>0.68×</strong></td>
+</tr>
+</tbody></table>
+<p><strong>中断次数不但没有暴增，反而降到基线的 0.69 倍。</strong></p>
+<p>这说明不是「太多中断把 CPU 淹了」，而是<strong>每一次中断的处理时间被拉长了几十到几百倍</strong>——CPU 卡在处理某一个中断里出不来，所以期间新中断反而更少被处理。</p>
+<p>这是<strong>驱动在中断处理程序里长时间轮询硬件</strong>的典型特征。常见于 ACPI&#x2F;EC 事务（读电池、读温度、读风扇）或 TPM&#x2F;PSP 的 SPI Flash 访问。</p>
+<h3 id="十六个核同时停"><a href="#十六个核同时停" class="headerlink" title="十六个核同时停"></a>十六个核同时停</h3><p>用等待型高精度定时器在 core0&#x2F;1&#x2F;8&#x2F;15 四核各绑一个探针，某次冻结的原始记录：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">02:40:31.237  c8    86,632 us</span><br><span class="line">02:40:31.238  c0    86,163 us</span><br><span class="line">02:40:31.238  c15   86,009 us</span><br><span class="line">02:40:31.238  c1    87,469 us      ← 四个核，同一毫秒，时长差 &lt;1.5ms</span><br><span class="line">02:40:31.343  c0/c1/c8/c15 同时 97.1–97.9 ms</span><br><span class="line">02:40:31.417  c0/c1/c8/c15 同时 67.2–69.1 ms</span><br><span class="line">02:40:31.491  c0/c1/c8/c15 同时 65.7–69.6 ms</span><br><span class="line">...</span><br><span class="line">02:40:32.481  c0/c1/c8/c15 同时 77.8–79.6 ms</span><br></pre></td></tr></table></figure>
+
+<p><strong>12 轮连续、四个核同时、时长一致到毫秒级。</strong></p>
+<p>这个模式只能是「所有核心同时被剥夺了 CPU」——单个核的调度延迟不会这样对齐。所以这是一个<strong>整机级暂停事件</strong>，core0 的 ISR 只是它的触发点或伴随现象。</p>
+<h3 id="一个关键验证：不是「系统时钟冻住了」"><a href="#一个关键验证：不是「系统时钟冻住了」" class="headerlink" title="一个关键验证：不是「系统时钟冻住了」"></a>一个关键验证：不是「系统时钟冻住了」</h3><p>这里有个非常诱人的错误解释。</p>
+<p>所有探针都依赖系统时间。如果 core0 的时钟中断被堵住，<code>KeUpdateSystemTime</code> 跑不了，系统 tick 就停止累加，那么<strong>所有</strong>基于定时器的探针会一起迟到，看起来就像整机暂停了——而 CPU 其实一直在跑。</p>
+<p>如果这个解释成立，那用户感知到的「卡顿」就只是<strong>测量假象</strong>。</p>
+<p>必须验证。方法：同时记录三个时间源，在同一个采样循环里逐条对比。</p>
+<table>
+<thead>
+<tr>
+<th>时间源</th>
+<th>来源</th>
+<th>是否受系统时钟影响</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>QueryPerformanceCounter</code></td>
+<td>TSC &#x2F; HPET 硬件计数器</td>
+<td><strong>不受影响</strong></td>
+</tr>
+<tr>
+<td><code>GetTickCount64()</code></td>
+<td>系统时钟中断累加</td>
+<td>受影响</td>
+</tr>
+<tr>
+<td><code>DateTime.UtcNow</code></td>
+<td>系统时钟中断累加</td>
+<td>受影响</td>
+</tr>
+</tbody></table>
+<p>如果某次停顿里 <strong>QPC 走了 80ms 而 Tick 只走了 5ms</strong>，就是时钟冻结；如果<strong>两者同步走了 80ms</strong>，就是真实的时间流逝。</p>
+<p>实测：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">墙钟时间           QPC间隔   Tick间隔   差值   判定</span><br><span class="line">02:59:59.321         79       78        1   real</span><br><span class="line">02:59:59.403         72       79       -7   real</span><br><span class="line">02:59:59.486         72       63        9   real</span><br><span class="line">02:59:59.558         62       63       -1   real</span><br><span class="line">...</span><br><span class="line">03:00:00.570         34       31        3   real</span><br></pre></td></tr></table></figure>
+
+<p><strong>25 次停顿事件，全部是 <code>kind=real</code>，<code>CLOCK-FROZEN</code> 为 0 次。</strong> <code>|QPC间隔 − Tick间隔|</code> 最大只有 13ms（采样抖动）。</p>
+<blockquote>
+<p><strong>系统时钟没有停。QPC 和系统 tick 同步走了 60–85ms，真实的时间确实流逝了。</strong></p>
+<p>这不是测量假象——<strong>整机真的停摆了</strong>。</p>
+</blockquote>
+<h2 id="1-5-我犯的两个错"><a href="#1-5-我犯的两个错" class="headerlink" title="1.5 我犯的两个错"></a>1.5 我犯的两个错</h2><h3 id="错误一：我用探针把键鼠干没了"><a href="#错误一：我用探针把键鼠干没了" class="headerlink" title="错误一：我用探针把键鼠干没了"></a>错误一：我用探针把键鼠干没了</h3><p>早期我为了测「所有核心是否同时停」，开了 <strong>12 个 <code>HIGH_PRIORITY_CLASS</code> 的自旋线程</strong>，占满 12 个逻辑核。</p>
+<p>结果：键盘鼠标完全没反应了几秒钟，直到类似资源管理器重启的现象出现才恢复。</p>
+<p><strong>探针会制造它要测量的现象。</strong> 12 个高优先级自旋线程把 16 核里的 12 核吃满，系统连输入线程都调度不上。</p>
+<p>从那以后我的规矩是：</p>
+<ul>
+<li>探针<strong>绝不用</strong> <code>HIGH_PRIORITY_CLASS</code></li>
+<li>自旋线程<strong>最多 1 个</strong>，绑 1 个核</li>
+<li>分析命令也会干扰测量——我狂扫 16MB 日志时，坏帧率从 0.10% 涨到 0.50%，最长帧从 147.6ms 涨到 301.2ms</li>
+</ul>
+<h3 id="错误二：我把「19-32-分钟精确可预测」说得太满"><a href="#错误二：我把「19-32-分钟精确可预测」说得太满" class="headerlink" title="错误二：我把「19.32 分钟精确可预测」说得太满"></a>错误二：我把「19.32 分钟精确可预测」说得太满</h3><p>最初的数据非常漂亮：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">01:22:59  +1158s (19.30min)</span><br><span class="line">01:42:29  +1170s (19.50min)</span><br><span class="line">02:01:39  +1150s (19.17min)</span><br><span class="line">02:20:44  +1145s (19.08min)</span><br><span class="line">02:40:31  +1187s (19.78min)</span><br></pre></td></tr></table></figure>
+
+<p>前 6 次间隔 1158&#x2F;1170&#x2F;1150&#x2F;1145&#x2F;1187 秒，抖动不到 2%。我据此宣布「固定 19.32 分钟周期，可以预测下一次」。</p>
+<p>后来数据多了，真面目露出来了：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">02:52:44  + 733s (12.22min)</span><br><span class="line">02:59:59  + 435s ( 7.25min)</span><br><span class="line">03:28:56  + 597s ( 9.95min)</span><br><span class="line">03:37:31  + 515s ( 8.58min)</span><br><span class="line">04:19:39  + 190s ( 3.17min)</span><br></pre></td></tr></table></figure>
+
+<p>用全部点做最小二乘拟合，残差最大到 385 秒。<strong>单一固定周期模型不成立。</strong></p>
+<p>修正后的说法：<strong>周期性但周期会漂移，区间 15–20 分钟。</strong></p>
+<blockquote>
+<p><strong>教训二：数据量不够的时候，「完美的拟合」往往是错觉。样本少的时候要说得保守。</strong></p>
+</blockquote>
+<hr>
+<h1 id="第二部分：追-fTPM，追到-BIOS-门口"><a href="#第二部分：追-fTPM，追到-BIOS-门口" class="headerlink" title="第二部分：追 fTPM，追到 BIOS 门口"></a>第二部分：追 fTPM，追到 BIOS 门口</h1><h2 id="2-1-嫌疑排序"><a href="#2-1-嫌疑排序" class="headerlink" title="2.1 嫌疑排序"></a>2.1 嫌疑排序</h2><ol>
+<li>🥇 ASUS ACPI&#x2F;EC 固件缺陷</li>
+<li>🥈 AMD fTPM（PSP）SPI Flash 访问</li>
+<li>🥉 AMD Crash Defender &#x2F; Ryzen Master 双版本驱动</li>
+</ol>
+<p>fTPM 那条最诱人：已知 AMD 平台的 fTPM 在访问 SPI ROM 时会<strong>阻塞所有核心 1–2 秒</strong>，症状正是「画面卡 + 音频爆音」，而且跟 ACPI 问题在 LatencyMon 上难以区分。</p>
+<p>于是决定：<strong>关掉 fTPM 验证一下。</strong></p>
+<h2 id="2-2-第一步：BIOS-里找不到"><a href="#2-2-第一步：BIOS-里找不到" class="headerlink" title="2.2 第一步：BIOS 里找不到"></a>2.2 第一步：BIOS 里找不到</h2><p>本机 BIOS 是 <code>G713QY.331</code>（2023-02-24）。进 BIOS，按 F7 切 Advanced Mode，找遍了：</p>
+<ul>
+<li><strong>Advanced 页只有 9 项</strong>：ArmouryCrate Control Interface Support &#x2F; SVM MODE &#x2F; ASUS EZ Flash 3 Utility &#x2F; SMART Settings &#x2F; Network Stack Configuration &#x2F; USB Configuration &#x2F; SATA Configuration &#x2F; NVMe Configuration &#x2F; Animation Post Logo Configuration</li>
+<li><strong>Security 页只有 5 项</strong>：Password Description &#x2F; Administrator Password Status &#x2F; User Password Status &#x2F; I&#x2F;O Interface Security &#x2F; Secure Boot</li>
+</ul>
+<p><strong>没有 TPM 相关的任何东西。</strong></p>
+<p>我一开始给的指引是「Advanced → AMD fTPM configuration → TPM Device Selection」，这是桌面主板的路径。笔记本 BIOS 根本不用这套。</p>
+<h2 id="2-3-第二步：直接解包-BIOS-镜像看菜单"><a href="#2-3-第二步：直接解包-BIOS-镜像看菜单" class="headerlink" title="2.3 第二步：直接解包 BIOS 镜像看菜单"></a>2.3 第二步：直接解包 BIOS 镜像看菜单</h2><p>与其猜，不如读。</p>
+<p>我把官网下载的 BIOS 更新文件（16,779,264 字节的 ASUS CAP 格式）用 Python 扫了一遍：对每个 zlib 头（<code>78 01/5e/9c/da</code>）尝试 <code>zlib.decompressobj()</code>，对每个 lzma 头（<code>5d 00 00</code>）尝试 <code>lzma.decompress(format=lzma.FORMAT_ALONE)</code>。</p>
+<p><strong>解出 97 个 zlib 流 + 1 个 lzma 流，其中最大那个 10,420,240 字节，就是 UEFI Setup 模块。</strong></p>
+<p>菜单字符串是 <strong>UTF-16LE</strong>（这就是为什么直接在原始镜像里搜 UTF-16LE 命中 0 处——因为它在压缩流里面）。</p>
+<p>从里面逐字读出来的菜单结构：</p>
+<ul>
+<li>一级菜单栏：<code>Main | Advanced | Boot | Security | Save &amp; Exit</code></li>
+<li><strong><code>Trusted Computing</code> 确实存在</strong>，在 Advanced 页偏后，紧跟在 Secure Boot &#x2F; Key Management 之后</li>
+<li>进入后：<code>Trusted Computing Settings</code> → <code>TPM State</code> &#x2F; <code>Security Device Support</code> &#x2F; <code>Pwd Authentication</code> &#x2F; <code>TPM Clear</code> &#x2F; <code>Device Select</code>（TPM 1.2 &#x2F; 2.0 &#x2F; Auto）&#x2F; PCR Bank 开关</li>
+<li>帮助文本：<code>Enable/Disable Security Device. NOTE: Your Computer will reboot during restart in order to change State of the Device.</code></li>
+<li><strong><code>AMD CBS</code> 页也存在</strong>：CPU Common Options &#x2F; DF Common Options &#x2F; UMC Common Options &#x2F; NBIO Common Options &#x2F; FCH Common Options 等</li>
+<li><strong>但搜不到</strong> <code>TPM Device Selection</code>、<code>AMD fTPM Configuration</code>、<code>AMD fTPM Switch</code>、<code>PTT</code>、<code>Firmware TPM</code>、<code>Discrete TPM</code>——笔记本走的是通用 AMI 路径，不是桌面主板那套 AMD 专用菜单</li>
+<li>也<strong>没有 <code>Search</code> &#x2F; <code>F9</code> 字符串</strong>——这版 BIOS 没有 F9 搜索功能，只能手翻</li>
+</ul>
+<p>结论：<strong>菜单在固件里，但 BIOS 331 的界面不显示它。</strong></p>
+<h2 id="2-4-第三步：刷-BIOS-335"><a href="#2-4-第三步：刷-BIOS-335" class="headerlink" title="2.4 第三步：刷 BIOS 335"></a>2.4 第三步：刷 BIOS 335</h2><p>官网最新是 <code>G713QY.335</code>（2025-11-07），更新说明写着一句很含糊的话：<strong>Improvements to overall system responsiveness</strong>（改善整体系统响应性）。</p>
+<p>刷之前做了一堆准备：</p>
+<ul>
+<li>挂起 BitLocker（<code>Suspend-BitLocker -MountPoint &#39;C:&#39; -RebootCount 10</code>）——刷 BIOS 会改 PCR 7，不挂起会跳恢复界面</li>
+<li>确认恢复密码保护器在手</li>
+<li>找 U 盘。全机只有一块 125GB 的山寨扩容盘（<code>SerialNumber 6661491034209202148</code>，<code>FriendlyName</code> 是空的）</li>
+<li>测这块盘靠不靠得住：前 2GB 七个偏移各写 4MB，7&#x2F;7 成功，但耗时极不均匀（207ms 到 46.4s）</li>
+<li>结论：<strong>前 2GB 可靠，放 16MB 镜像没问题</strong></li>
+<li>格成 FAT32（EZ Flash 只认 FAT32），复制镜像，SHA-256 双向校验一致</li>
+</ul>
+<p>然后进 BIOS，用 EZ Flash 3 刷。刷写本身 2–3 分钟，中间有三个「看似卡住其实正常」的阶段绝不能断电：</p>
+<ol>
+<li>进度条 90% 停十几秒（在写引导块）</li>
+<li>刷完黑屏 1–3 分钟（内存重训，风扇狂转）</li>
+<li>连续自动重启 2–3 次（重建 NVRAM）</li>
+</ol>
+<h2 id="2-5-第四步：刷完了，菜单还是没出现"><a href="#2-5-第四步：刷完了，菜单还是没出现" class="headerlink" title="2.5 第四步：刷完了，菜单还是没出现"></a>2.5 第四步：刷完了，菜单还是没出现</h2><p><code>SMBIOSBIOSVersion</code> 确认变成 <code>G713QY.335</code>，<code>ReleaseDate 2025/11/7</code>。</p>
+<p>然后进 BIOS 一看：<strong>Advanced 页还是那 9 项，Security 页还是那 5 项，<code>Trusted Computing</code> 依然不显示。</strong></p>
+<p>镜像里明明有全部字符串，界面就是不显示——被 <code>suppressif</code> 之类的条件隐藏了，或者这版 BIOS 的 HII 表单根本没注册它。</p>
+<blockquote>
+<p><strong>教训三：「菜单在 BIOS 镜像里存在」不等于「BIOS 界面会显示它」。从二进制反推菜单路径，要留出「被条件隐藏」的余地。</strong></p>
+</blockquote>
+<p>fTPM 这条线到此为止。关不掉。</p>
+<hr>
+<h1 id="第三部分：刷完之后，电脑进不去了"><a href="#第三部分：刷完之后，电脑进不去了" class="headerlink" title="第三部分：刷完之后，电脑进不去了"></a>第三部分：刷完之后，电脑进不去了</h1><p><strong>这一部分才是这篇文章真正的核心。</strong></p>
+<h2 id="3-1-死循环的形状"><a href="#3-1-死循环的形状" class="headerlink" title="3.1 死循环的形状"></a>3.1 死循环的形状</h2><p>刷完 BIOS，重启，进入 Windows。</p>
+<p>然后我看到的是：<strong>锁屏界面，要求我设置 PIN。</strong></p>
+<p>这本身是预期的——刷 BIOS 改了 PCR 7，TPM 里封装的 PIN 凭证失效，系统要求重新设置。正常流程是：输微软账号密码 → 验证通过 → 设置新 PIN → 进系统。</p>
+<p>实际发生的是：</p>
+<ol>
+<li>输入微软账号和密码</li>
+<li>走到「最后一步，设置 PIN」</li>
+<li><strong>报错</strong></li>
+<li>点「跳过」</li>
+<li><strong>黑屏一下</strong></li>
+<li>回到锁屏</li>
+<li><strong>网络也断了</strong></li>
+<li>重新联网，重新登录</li>
+<li>回到第 1 步</li>
+</ol>
+<p><strong>一个完美的死循环。</strong></p>
+<p>而且注意第 7 步——<strong>联网也一起断了</strong>。这一开始让我以为是网卡驱动问题，后来才明白这是关键线索。</p>
+<h2 id="3-2-拆解：其实是三个问题叠在一起"><a href="#3-2-拆解：其实是三个问题叠在一起" class="headerlink" title="3.2 拆解：其实是三个问题叠在一起"></a>3.2 拆解：其实是三个问题叠在一起</h2><p>事后复盘，这个死循环是三个独立问题叠加的结果。单独任何一个都有解，叠在一起就无解。</p>
+<h3 id="第一层：PIN-凭证失效"><a href="#第一层：PIN-凭证失效" class="headerlink" title="第一层：PIN 凭证失效"></a>第一层：PIN 凭证失效</h3><p>BIOS 更新 → PCR 7（Secure Boot 状态）变化 → TPM 里封装的 PIN 密钥解不开 → Windows Hello 要求重建 PIN。</p>
+<p>这一层是<strong>正常的、预期的</strong>，Windows 本来就设计了应对流程。</p>
+<h3 id="第二层：重建-PIN-需要在线验证"><a href="#第二层：重建-PIN-需要在线验证" class="headerlink" title="第二层：重建 PIN 需要在线验证"></a>第二层：重建 PIN 需要在线验证</h3><p>Windows 10&#x2F;11 在重建 PIN 时，要求微软账户<strong>在线</strong>验证一次。</p>
+<p>如果验证不了，就退回到「只能用本地缓存的旧凭证登录」。</p>
+<p>这一层也是<strong>设计如此</strong>。</p>
+<h3 id="第三层：NCSI-认为这台电脑没有网"><a href="#第三层：NCSI-认为这台电脑没有网" class="headerlink" title="第三层：NCSI 认为这台电脑没有网"></a>第三层：NCSI 认为这台电脑没有网</h3><p>这是真正的杀手。</p>
+<p>Windows 判断「我有没有联网」不看你实际能不能上网，而是看一个叫 <strong>NCSI（Network Connectivity Status Indicator，网络连接状态指示器）</strong> 的探测结果：</p>
+<ol>
+<li>定期向 <code>www.msftconnecttest.com/connecttest.txt</code> 发 HTTP 请求</li>
+<li>期望返回字符串 <code>Microsoft Connect Test</code></li>
+<li>同时做一次 DNS 探测 <code>dns.msftncsi.com</code></li>
+<li>拿到预期结果 → 标记「已连接」</li>
+<li>拿不到 → 标记「无 Internet 访问」或「脱机」</li>
+</ol>
+<p><strong>如果这个探测被拦截</strong>（防火墙、代理、hosts、安全软件、组策略），Windows 就会一直认为自己离线——<strong>即使你实际能上网。</strong></p>
+<p>于是：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">实际有网</span><br><span class="line">  ↓</span><br><span class="line">NCSI 探测被拦</span><br><span class="line">  ↓</span><br><span class="line">系统认为「我离线」</span><br><span class="line">  ↓</span><br><span class="line">拒绝做微软账户在线验证</span><br><span class="line">  ↓</span><br><span class="line">PIN 重建失败</span><br><span class="line">  ↓</span><br><span class="line">只允许用本地缓存的旧密码登录</span><br><span class="line">  ↓</span><br><span class="line">而旧密码我早就忘了（一直用 PIN 登录）</span><br><span class="line">  ↓</span><br><span class="line">死循环</span><br></pre></td></tr></table></figure>
+
+<p><strong>三层叠在一起：PIN 失效 → 需要在线 → 系统认为离线 → 只能用旧密码 → 旧密码不知道。</strong></p>
+<p>而系统的提示是「<strong>你的设备处于脱机状态，请使用上次在该设备上使用的密码</strong>」——它说得很准确，但它没告诉你「其实你有网，只是我认为你没网」。</p>
+<h2 id="3-3-我试过的十几种方法（按时间顺序）"><a href="#3-3-我试过的十几种方法（按时间顺序）" class="headerlink" title="3.3 我试过的十几种方法（按时间顺序）"></a>3.3 我试过的十几种方法（按时间顺序）</h2><table>
+<thead>
+<tr>
+<th>#</th>
+<th>尝试</th>
+<th>结果</th>
+<th>为什么不行</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>锁屏「登录选项」切密码</td>
+<td>没有该入口</td>
+<td>Windows 已知 bug，密码按钮隐形</td>
+</tr>
+<tr>
+<td>2</td>
+<td>安全模式</td>
+<td>连登录入口都没有</td>
+<td>安全模式不加载 Hello 组件</td>
+</tr>
+<tr>
+<td>3</td>
+<td>BIOS 清 TPM</td>
+<td>找不到选项</td>
+<td>331&#x2F;335 都把菜单隐藏了（见 2.5）</td>
+</tr>
+<tr>
+<td>4</td>
+<td>WinRE 改 <code>DevicePasswordLessBuildVersion</code> 2→0</td>
+<td>能输密码了</td>
+<td>但系统脱机，只认旧密码</td>
+</tr>
+<tr>
+<td>5</td>
+<td>USB 共享网络</td>
+<td>仍显示脱机</td>
+<td>NCSI 探测被拦，物理联网没用</td>
+</tr>
+<tr>
+<td>6</td>
+<td>带网络的安全模式</td>
+<td>连不上网</td>
+<td>同上</td>
+</tr>
+<tr>
+<td>7</td>
+<td>WinRE 命令行删 Ngc 文件夹</td>
+<td>找不到路径</td>
+<td>盘符偏移，系统盘是 D: 不是 C:</td>
+</tr>
+<tr>
+<td>8</td>
+<td>注册表「加载配置单元」</td>
+<td>被拒</td>
+<td>要先选中 HKEY_LOCAL_MACHINE，或用 <code>reg load</code></td>
+</tr>
+<tr>
+<td>9</td>
+<td><code>net user</code> 建新账户</td>
+<td>无反应</td>
+<td>SAM 被占用</td>
+</tr>
+<tr>
+<td>10</td>
+<td><code>net user administrator /active:yes</code></td>
+<td>重启看不到</td>
+<td>账户确实启用了，但锁屏不显示</td>
+</tr>
+<tr>
+<td>11</td>
+<td><code>utilman.exe</code> 换成 <code>cmd.exe</code></td>
+<td>拿到 SYSTEM 权限 CMD</td>
+<td>但 <code>net user</code> 仍然失败</td>
+</tr>
+<tr>
+<td>12</td>
+<td>加载 SAM 配置单元改 F 值</td>
+<td><strong>进入超级管理员</strong></td>
+<td>但无法关联微软账户</td>
+</tr>
+<tr>
+<td>13</td>
+<td><code>netplwiz</code> 新建本地管理员</td>
+<td>「服务暂不可用」</td>
+<td>重启 UserProfileService 后成功</td>
+</tr>
+<tr>
+<td>14</td>
+<td>新账户关联微软账户</td>
+<td>「其他账户已登录此账号」</td>
+<td>同一微软账号不能绑两个本地账户</td>
+</tr>
+<tr>
+<td>15</td>
+<td>清 Ngc &#x2F; <code>dsregcmd /leave</code> &#x2F; 凭据 &#x2F; DNS &#x2F; hosts</td>
+<td>全无效</td>
+<td>都不是根因</td>
+</tr>
+<tr>
+<td>16</td>
+<td>就地修复安装</td>
+<td>失败</td>
+<td>最新版无法安装更新</td>
+</tr>
+<tr>
+<td>17</td>
+<td>WinPE + Dism++</td>
+<td>没有「恢复密码」功能</td>
+<td>工具本身不提供</td>
+</tr>
+<tr>
+<td>18</td>
+<td><strong>重置 NCSI 参数</strong></td>
+<td><strong>成功</strong></td>
+<td>← 这才是根因</td>
+</tr>
+</tbody></table>
+<p>下面挑几个关键的说。</p>
+<h3 id="尝试-7：WinRE-里系统盘不是-C"><a href="#尝试-7：WinRE-里系统盘不是-C" class="headerlink" title="尝试 7：WinRE 里系统盘不是 C:"></a>尝试 7：WinRE 里系统盘不是 C:</h3><p>在 WinRE 命令提示符里执行：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">takeown /f &quot;C:\Windows\ServiceProfiles\LocalService\AppData\Local\Microsoft\Ngc&quot; /r /d y</span><br></pre></td></tr></table></figure>
+
+<p>报「找不到路径」。</p>
+<p>原因：<strong>WinRE 里的盘符分配和正常系统里不一样。</strong> WinRE 自己运行在内存盘 X: 上，你的系统盘可能被挂成 D: 或 E:。</p>
+<p>正确的做法是先确认：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bcdedit | find &quot;osdevice&quot;</span><br></pre></td></tr></table></figure>
+
+<p>输出里的 <code>partition=D:</code> 就是真正的系统盘。我这台机器是 <code>D:</code>。</p>
+<blockquote>
+<p><strong>这个坑很隐蔽：所有网上教程都写 <code>C:\Windows\...</code>，但在 WinRE 里这句话可能是错的。</strong></p>
+</blockquote>
+<h3 id="尝试-8：注册表加载配置单元被拒"><a href="#尝试-8：注册表加载配置单元被拒" class="headerlink" title="尝试 8：注册表加载配置单元被拒"></a>尝试 8：注册表加载配置单元被拒</h3><p>WinRE 里打开 <code>regedit</code>，点「文件 → 加载配置单元」，报错。</p>
+<p>两个原因：</p>
+<ol>
+<li><strong>必须先单击选中左侧的 <code>HKEY_LOCAL_MACHINE</code><strong>，否则「加载配置单元」是灰色不可点的——看起来像被拒绝。注意这一步要在</strong>加载配置单元之前</strong>做，不是加载之后。</li>
+<li>如果 GUI 仍然失败，用命令行 <code>reg load</code> 绕过：</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">reg load HKLM\TempLoad D:\Windows\System32\config\SOFTWARE</span><br></pre></td></tr></table></figure>
+
+<p>如果提示「拒绝访问」，说明是 <code>SOFTWARE</code> 文件本身的 NTFS 权限问题：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">takeown /f &quot;D:\Windows\System32\config\SOFTWARE&quot;</span><br><span class="line">icacls &quot;D:\Windows\System32\config\SOFTWARE&quot; /grant administrators:F</span><br></pre></td></tr></table></figure>
+
+<p>加载成功后甚至不用开 GUI，直接改：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">reg add &quot;HKLM\TempLoad\Microsoft\Windows NT\CurrentVersion\PasswordLess\Device&quot; /v DevicePasswordLessBuildVersion /t REG_DWORD /d 0 /f</span><br><span class="line">reg unload HKLM\TempLoad</span><br></pre></td></tr></table></figure>
+
+<p><strong>这一步我确实做成了</strong>——<code>DevicePasswordLessBuildVersion</code> 从 <code>2</code> 改成 <code>0</code>，锁屏的「密码」选项真的出现了。</p>
+<p><strong>然后我发现：能输密码了，但系统说「设备处于脱机状态，必须使用上次在设备上使用的密码」。</strong></p>
+<p>而那个「上次的密码」，我完全不记得——我一直用 PIN 登录，微软密码改过好几次。</p>
+<p><strong>到这里，第一步的胜利变成了新的死胡同。</strong></p>
+<h3 id="尝试-11–12：utilman-后门-改-SAM"><a href="#尝试-11–12：utilman-后门-改-SAM" class="headerlink" title="尝试 11–12：utilman 后门 + 改 SAM"></a>尝试 11–12：utilman 后门 + 改 SAM</h3><p>这条路是「本地账户自救」的经典打法。</p>
+<p><strong>第一步：把「轻松使用」按钮换成命令提示符。</strong></p>
+<p>在 WinRE 里：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">D:</span><br><span class="line">cd \Windows\system32</span><br><span class="line">rename utilman.exe utilman-backup.exe</span><br><span class="line">copy cmd.exe utilman.exe</span><br></pre></td></tr></table></figure>
+
+<p>重启，在锁屏点右下角「轻松使用」图标 → 弹出 SYSTEM 权限的命令提示符。</p>
+<p><strong>但 <code>net user</code> 创建账户仍然失败</strong>——在这个阶段，SAM 数据库被系统独占，改不动。</p>
+<p><strong>第二步：离线改 SAM。</strong></p>
+<p>在 WinRE 里加载 SAM 配置单元：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">reg load HKLM\OFFLINE_SAM D:\Windows\System32\config\SAM</span><br></pre></td></tr></table></figure>
+
+<p>然后改内置 Administrator 的启用标志位。<code>HKLM\OFFLINE_SAM\SAM\Domains\Account\Users\000001F4</code> 的二进制值 <code>F</code>，偏移 <code>0x38</code> 处，把 <code>11</code> 改成 <code>10</code>（这是账户控制位，去掉「禁用」标志）。</p>
+<p>重启，<strong>成功以超级管理员身份进入系统。</strong></p>
+<blockquote>
+<p>⚠️ <strong>必须说明：这些操作会留下痕迹，也会降低系统安全性。我用完之后把 <code>utilman.exe</code> 全部还原了，并且验证了签名（<code>utilman.exe</code>、<code>sethc.exe</code>、<code>osk.exe</code>、<code>Magnify.exe</code>、<code>Narrator.exe</code>、<code>AtBroker.exe</code>、<code>cmd.exe</code> 全部 Valid）。如果你要照做，务必记得还原。</strong></p>
+</blockquote>
+<h3 id="尝试-13–14：新建本地账户，然后卡在关联微软账户"><a href="#尝试-13–14：新建本地账户，然后卡在关联微软账户" class="headerlink" title="尝试 13–14：新建本地账户，然后卡在关联微软账户"></a>尝试 13–14：新建本地账户，然后卡在关联微软账户</h3><p>进了超级管理员，但超级管理员账户<strong>关联不了微软账户</strong>（Windows 不允许内置 Administrator 绑定 MSA）。</p>
+<p>于是用 <code>netplwiz</code> 新建一个本地管理员账户。</p>
+<p>第一次登录报「<strong>服务暂不可用</strong>」。重启 <code>User Profile Service</code> 后再建一个，成功了。</p>
+<p><strong>然后试图把这个新本地账户关联到我的微软账户</strong>，报「<strong>当前设备上的其他账户已登录此账号</strong>」。</p>
+<p>Windows 不允许同一个微软账户绑定两个本地账户。而原来那个 <code>asus</code> 账户还绑着。</p>
+<p>绕不过去。</p>
+<h3 id="尝试-15：清缓存大法（全无效）"><a href="#尝试-15：清缓存大法（全无效）" class="headerlink" title="尝试 15：清缓存大法（全无效）"></a>尝试 15：清缓存大法（全无效）</h3><p>这时候我开始怀疑是账户缓存损坏，于是把能清的都清了：</p>
+<ul>
+<li>删除 <code>C:\Windows\ServiceProfiles\LocalService\AppData\Local\Microsoft\Ngc</code></li>
+<li>清凭据管理器</li>
+<li><code>dsregcmd /leave</code></li>
+<li>删 <code>StoredIdentities</code></li>
+<li>删 <code>AAD.BrokerPlugin</code> 缓存</li>
+<li>改 DNS 为 <code>4.2.2.1</code> &#x2F; <code>4.2.2.2</code></li>
+<li>处理 hosts 文件</li>
+</ul>
+<p><strong>全都没用。</strong></p>
+<p>因为<strong>根因根本不在账户缓存里</strong>。</p>
+<h3 id="那一刻我意识到自己一直在错的方向上"><a href="#那一刻我意识到自己一直在错的方向上" class="headerlink" title="那一刻我意识到自己一直在错的方向上"></a>那一刻我意识到自己一直在错的方向上</h3><p>我在这个界面上耗了六七个小时，试了十几种方法，每一种都是「标准故障的标准解法」。</p>
+<p>但我的故障<strong>不是标准故障</strong>。它是三个问题叠在一起，而每一个标准解法都只解决其中一层。</p>
+<p>我还记得当时在跟 AI 对话时打的那句话（原话比这激动得多）：</p>
+<blockquote>
+<p>「我早就把那个 2 改成 0 了，也早就可以用密码登录了，现在的问题是连不上网，没法在线登录，只能用本地旧密码登录，你听懂了吗」</p>
+</blockquote>
+<p>AI 一直在重复建议我已经做过的事。因为它看不到我的实际状态，只能按「标准故障」给方案。</p>
+<h2 id="3-4-破局：把三个问题分开看"><a href="#3-4-破局：把三个问题分开看" class="headerlink" title="3.4 破局：把三个问题分开看"></a>3.4 破局：把三个问题分开看</h2><p>真正的转折点是我不再问「怎么登录」，而是问：</p>
+<blockquote>
+<p><strong>「为什么系统认为我离线？」</strong></p>
+</blockquote>
+<p>这个问题一问出来，方向就变了。</p>
+<p>实际能不能上网？能。浏览器能开网页，ping 得通。</p>
+<p>那系统为什么认为离线？</p>
+<p><strong>因为 NCSI。</strong></p>
+<h2 id="3-5-真正的解法"><a href="#3-5-真正的解法" class="headerlink" title="3.5 真正的解法"></a>3.5 真正的解法</h2><p>在新账户的管理员 CMD 里，重置 NCSI 探测参数：</p>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">reg add &quot;HKLM\SYSTEM\CurrentControlSet\Services\NlaSvc\Parameters\Internet&quot; /v EnableActiveProbing /t REG_DWORD /d <span class="number">1</span> /f</span><br><span class="line">reg add &quot;HKLM\SYSTEM\CurrentControlSet\Services\NlaSvc\Parameters\Internet&quot; /v ActiveWebProbeHost /t REG_SZ /d www.msftconnecttest.com /f</span><br><span class="line">reg add &quot;HKLM\SYSTEM\CurrentControlSet\Services\NlaSvc\Parameters\Internet&quot; /v ActiveWebProbePath /t REG_SZ /d connecttest.txt /f</span><br><span class="line">reg add &quot;HKLM\SYSTEM\CurrentControlSet\Services\NlaSvc\Parameters\Internet&quot; /v ActiveWebProbeContent /t REG_SZ /d &quot;Microsoft Connect Test&quot; /f</span><br><span class="line"></span><br><span class="line">reg delete &quot;HKLM\SOFTWARE\Policies\Microsoft\Windows\NetworkConnectivityStatusIndicator&quot; /v NoActiveProbe /f</span><br><span class="line">reg delete &quot;HKLM\SOFTWARE\Policies\Microsoft\Windows\NetworkConnectivityStatusIndicator&quot; /v DisablePassivePolling /f</span><br><span class="line"></span><br><span class="line">netsh winhttp reset proxy</span><br><span class="line"><span class="built_in">ipconfig</span> /flushdns</span><br></pre></td></tr></table></figure>
+
+<p>然后重启。</p>
+<p><strong>重启之后，锁屏界面，用原来的微软账户登录——验证通过，直接进系统。</strong></p>
+<p><strong>十个小时的死循环，被八条命令解决了。</strong></p>
+<h2 id="3-6-为什么这么难"><a href="#3-6-为什么这么难" class="headerlink" title="3.6 为什么这么难"></a>3.6 为什么这么难</h2><h3 id="因为系统的提示是「正确但无用」的"><a href="#因为系统的提示是「正确但无用」的" class="headerlink" title="因为系统的提示是「正确但无用」的"></a>因为系统的提示是「正确但无用」的</h3><p>「你的设备处于脱机状态，请使用上次在该设备上使用的密码」——这句话每个字都是对的，但它指向的解决方向是「去找旧密码」，而不是「去修网络状态判断」。</p>
+<p><strong>它告诉你症状，不告诉你病因。</strong></p>
+<h3 id="因为三个问题互相掩护"><a href="#因为三个问题互相掩护" class="headerlink" title="因为三个问题互相掩护"></a>因为三个问题互相掩护</h3><ul>
+<li>你以为是 PIN 问题 → 去修 PIN → 修不动，因为要在线验证</li>
+<li>你以为是网络问题 → 去修网络 → 修不动，因为实际有网</li>
+<li>你以为是账户问题 → 去修账户 → 修不动，因为凭证在 TPM 里</li>
+</ul>
+<p>每个方向都走了一半，都被另一层挡住。而<strong>只有把三层拆开单独看，才能找到那个真正的开关</strong>。</p>
+<h3 id="因为-AI-帮不上忙"><a href="#因为-AI-帮不上忙" class="headerlink" title="因为 AI 帮不上忙"></a>因为 AI 帮不上忙</h3><p>我全程在跟 AI 对话。它给了很多有用的信息（比如盘符偏移、<code>reg load</code> 绕过 GUI、utilman 后门），但它有个根本局限：</p>
+<p><strong>它按「标准故障」给方案，而我的故障是三个标准故障的叠加。</strong></p>
+<p>每次我说「这个不行」，它就给下一个标准方案。它没法问「你现在系统的 NCSI 状态是什么」——它看不到我的机器。</p>
+<p><strong>AI 擅长的是「已知问题的标准解法」，不擅长的是「未知组合的定位」。</strong> 后者需要你自己提出正确的问题。</p>
+<p>而这一次，正确的问题是：<strong>「为什么系统认为我离线？」</strong></p>
+<hr>
+<h1 id="第四部分：意外——卡顿消失了"><a href="#第四部分：意外——卡顿消失了" class="headerlink" title="第四部分：意外——卡顿消失了"></a>第四部分：意外——卡顿消失了</h1><p>回到开头那个卡顿。</p>
+<p>刷完 BIOS、折腾完锁屏之后，我继续用监控工具跑着，准备验证「关 fTPM 有没有用」。</p>
+<p>结果发现：<strong>fTPM 没关掉，卡顿却没了。</strong></p>
+<p>刷机后 125 分钟里，真·固件冻结 <strong>0 次</strong>。</p>
+<p>按刷机前测得的 16.02 分钟周期，这 125 分钟里本该冻结 7.68 次。</p>
+<p><strong>修复来自 BIOS 335 里的其他改动</strong>——AGESA 更新、EC 固件更新、ACPI 表修正，具体哪一项不知道，但问题解决了。</p>
+<h2 id="用统计证明它真的消失了"><a href="#用统计证明它真的消失了" class="headerlink" title="用统计证明它真的消失了"></a>用统计证明它真的消失了</h2><p>「感觉不卡了」不算证据。</p>
+<h3 id="判据迭代：宽松判据差点让我得出相反结论"><a href="#判据迭代：宽松判据差点让我得出相反结论" class="headerlink" title="判据迭代：宽松判据差点让我得出相反结论"></a>判据迭代：宽松判据差点让我得出相反结论</h3><p>第一版判据是「平均帧时 ≥55ms 且最长帧 ≥80ms」。</p>
+<p>结果：<strong>刷机前 28 次，刷机后 6 次。</strong></p>
+<p>差点写成「BIOS 335 没有解决问题」。</p>
+<p>问题在于：刷机后的 6 次里，大部分是<strong>登录&#x2F;切换用户时的碎噪声</strong>——单帧 92.3ms、120.4ms 这种，根本不是固件冻结。</p>
+<p>收紧判据，要求同时满足：</p>
+<ul>
+<li>帧数 <code>12 ≤ n ≤ 22</code>（1.2 秒 &#x2F; 60fps ≈ 17 帧，这是最硬的指纹）</li>
+<li>平均帧时 <code>60 ≤ avg ≤ 130ms</code></li>
+<li>最长帧 <code>80 ≤ mx ≤ 400ms</code></li>
+<li>簇跨度 <code>0.6 ≤ span ≤ 2.0</code> 秒</li>
+<li><code>mx &lt; 1000ms</code>（排除登录停顿）</li>
+</ul>
+<p>结果：<strong>刷机前 17 次，刷机后 1 次</strong>（那 1 次是开机后 1.9 分钟的初始化残留）。</p>
+<blockquote>
+<p><strong>教训四：同一批数据，判据不同结论可以完全相反。分析脚本必须把判据写进注释和报告里。</strong></p>
+</blockquote>
+<h3 id="泊松检验"><a href="#泊松检验" class="headerlink" title="泊松检验"></a>泊松检验</h3><table>
+<thead>
+<tr>
+<th>里程碑</th>
+<th>干净时长</th>
+<th>期望冻结</th>
+<th>实际</th>
+<th>p 值</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>刚刷完</td>
+<td>107.2 分钟</td>
+<td>6.69 次</td>
+<td>0</td>
+<td><strong>0.12%</strong></td>
+</tr>
+<tr>
+<td>观察中</td>
+<td>125.0 分钟</td>
+<td>7.68 次</td>
+<td>0</td>
+<td><strong>0.046%</strong></td>
+</tr>
+</tbody></table>
+<p><strong>p &lt; 0.001。周期已消失。</strong></p>
+<h3 id="顺便分清了两类「卡」"><a href="#顺便分清了两类「卡」" class="headerlink" title="顺便分清了两类「卡」"></a>顺便分清了两类「卡」</h3><p>刷机后还出现过几次「卡」，但性质完全不同：</p>
+<table>
+<thead>
+<tr>
+<th>时刻</th>
+<th>单帧时长</th>
+<th>同期事件</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>15:37:30.548</td>
+<td><strong>3033.9 ms</strong></td>
+<td>DWM 已注册会话端口 + 火绒 SecurityCenter 状态更新 + AcPowerNotification.exe 崩溃</td>
+</tr>
+<tr>
+<td>15:48:41.880</td>
+<td><strong>3002.3 ms</strong></td>
+<td>Administrator 登录 + 火绒 SecurityCenter</td>
+</tr>
+</tbody></table>
+<p>机制是切换用户 &#x2F; 登录时 <strong>DWM 重建合成会话 + 创建用户配置文件</strong>，整个桌面渲染管线停摆 3 秒。这不是固件问题，任何人切换用户都会遇到。</p>
+<h3 id="还有一个反直觉的发现"><a href="#还有一个反直觉的发现" class="headerlink" title="还有一个反直觉的发现"></a>还有一个反直觉的发现</h3><p>某 10 秒里 core0 的 ISR 飙到 42–70%、DPC 飙到 28–100%，<strong>但同期帧时完全正常</strong>（全部 16.6–17.1ms）。</p>
+<p>反过来，另外几个 dpcMax 高点前后 6 秒内最长帧只有 29–34ms。</p>
+<blockquote>
+<p><strong>教训五：DPC&#x2F;ISR 百分比高 ≠ 用户能感觉到卡。判断用户可见卡顿只能看帧探针的实际间隔，不能只看性能计数器。</strong></p>
+</blockquote>
+<hr>
+<h1 id="第五部分：经验总结"><a href="#第五部分：经验总结" class="headerlink" title="第五部分：经验总结"></a>第五部分：经验总结</h1><h2 id="关于排查方法"><a href="#关于排查方法" class="headerlink" title="关于排查方法"></a>关于排查方法</h2><ol>
+<li><p><strong>先确认故障真实存在，再找原因。</strong> 如果一开始就猜，会一直在错的路上跑。</p>
+</li>
+<li><p><strong>探针会制造它要测量的现象。</strong> 12 个高优先级自旋线程让键鼠无响应了好几秒。这是最贵的一课。</p>
+</li>
+<li><p><strong>现成工具测不出来的时候，要问「为什么测不出来」，而不是「再换一个工具」。</strong> DPC&#x2F;ISR 记账粒度 15.625ms 这个发现，比任何一次采样都有价值。</p>
+</li>
+<li><p><strong>样本少的时候，完美的拟合往往是错觉。</strong> 「19.32 分钟精确可预测」在 6 个样本时看起来无懈可击，第 7 个样本就把它打破了。</p>
+</li>
+<li><p><strong>判据要写进脚本。</strong> 宽松判据会得出完全相反的结论，而且你不会知道。</p>
+</li>
+</ol>
+<h2 id="关于自救"><a href="#关于自救" class="headerlink" title="关于自救"></a>关于自救</h2><ol start="6">
+<li><p><strong>系统的错误提示会把你指向错误的解法。</strong> 「设备处于脱机状态」让你去修密码，实际要修的是网络状态判断。</p>
+</li>
+<li><p><strong>多个故障叠加时，逐个排查会全部失败。</strong> 必须先把它们拆开，单独看每一层。</p>
+</li>
+<li><p><strong>AI 擅长标准解法，不擅长组合定位。</strong> 它能给你十个「标准方案」，但定位需要你自己提出正确的问题。</p>
+</li>
+<li><p><strong>动手前先想好怎么还原。</strong> utilman 后门用完必须还原，我做完后逐个验证了文件签名。</p>
+</li>
+</ol>
+<h2 id="关于-Windows-内部"><a href="#关于-Windows-内部" class="headerlink" title="关于 Windows 内部"></a>关于 Windows 内部</h2><table>
+<thead>
+<tr>
+<th>发现</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>DPC&#x2F;ISR 记账粒度</td>
+<td><strong>15.625ms</strong>（1&#x2F;64 秒），<code>NtQuerySystemInformation(8)</code> 增量永远是 0 或 15625</td>
+</tr>
+<tr>
+<td>定时器合并</td>
+<td>多进程定时器会被统一释放，定时器探针测「同步停顿」不可信，必须自旋</td>
+</tr>
+<tr>
+<td><code>QueryThreadCycleTime</code></td>
+<td>返回<strong>累计值</strong>，两个量必须来自同一对时间点相减，否则算出 1e10 量级的荒谬值</td>
+</tr>
+<tr>
+<td><code>Process.TotalProcessorTime</code></td>
+<td>本机异常慢（183 进程 1.96–2.95s），改用 <code>NtQuerySystemInformation(5)</code> 一次取全表，4ms</td>
+</tr>
+<tr>
+<td><code>CallNtPowerInformation(11)</code></td>
+<td>在 Ryzen 上返回标称频率（恒定 3301MHz），不能检测降频</td>
+</tr>
+<tr>
+<td>ETW 通道</td>
+<td>DxgKrnl &#x2F; Dwm-Core &#x2F; Win32k &#x2F; Audio &#x2F; DXGI 在本机全部不存在</td>
+</tr>
+<tr>
+<td><strong>NCSI</strong></td>
+<td>Windows 判断「有没有网」靠的是探测 <code>www.msftconnecttest.com/connecttest.txt</code>，<strong>不是实际连通性</strong></td>
+</tr>
+<tr>
+<td><strong>WinRE 盘符</strong></td>
+<td>WinRE 里系统盘通常不是 <code>C:</code>，用 <code>bcdedit | find &quot;osdevice&quot;</code> 确认</td>
+</tr>
+</tbody></table>
+<h2 id="关于-PowerShell（踩了一堆坑）"><a href="#关于-PowerShell（踩了一堆坑）" class="headerlink" title="关于 PowerShell（踩了一堆坑）"></a>关于 PowerShell（踩了一堆坑）</h2><ol>
+<li><strong><code>.ps1</code> 必须 UTF-8 with BOM</strong>，否则 PS 5.1 按 cp936 解码，中文全乱码，经常直接语法错误</li>
+<li><strong><code>Write-Host &quot;...&#123;0&#125;&quot; -f $x</code> 会被当成 <code>-ForegroundColor</code> 的缩写</strong>，报「无法将值 125 转换为 System.ConsoleColor」。必须整个表达式包进括号：<code>Write-Host (&quot;...&#123;0&#125;&quot; -f $x)</code></li>
+<li><strong><code>$pid</code> 是只读自动变量</strong></li>
+<li><strong><code>@($genericList)</code> 对 <code>List[object]</code> 抛「参数类型不匹配」</strong>，要用 <code>.ToArray()</code></li>
+<li><strong>Add-Type 的 C# 里 catch 不能带未使用的变量名</strong></li>
+<li><strong><code>ConvertTo-Json</code> 生成大 JSON 极慢</strong>：343ms &#x2F; 1.66MB。改用 <code>StringBuilder</code> 手工拼，164ms &#x2F; 336KB，快 2.1 倍、体积小 4.9 倍</li>
+<li><strong><code>Start-Process -RedirectStandardOutput</code> 的日志是 GBK</strong>，不是 UTF-8</li>
+<li><strong><code>.cmd</code> 启动器彻底放弃</strong>：cp936 会破坏 UTF-8 中文注释，而且 <code>start</code> 子进程继承 stdout 会导致工具调用挂死。用 <code>.ps1</code> + <code>.lnk</code></li>
+</ol>
+<hr>
+<h1 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h1><h2 id="最终的结论"><a href="#最终的结论" class="headerlink" title="最终的结论"></a>最终的结论</h2><p><strong>卡顿：BIOS 331（2023-02-24）有固件缺陷，导致每 15–20 分钟出现一次约 1.2 秒的整机暂停。刷到 BIOS 335（2025-11-07）后消失，p &lt; 0.001。</strong></p>
+<p>机制：core0 陷入长时间中断处理（ISR 84–95% 持续 1.2 秒），同时通过 IPI&#x2F;广播把其他核心拉进中断上下文，导致所有核心同时无法执行用户代码。中断次数反而降到基线 0.68×——不是中断风暴，是每次中断处理被拉长几十到几百倍。</p>
+<p><strong>锁屏死循环：BIOS 更新导致 PIN 凭证失效，重建 PIN 需要微软账户在线验证，而 NCSI 探测被拦截导致系统误判离线，只允许使用本地缓存的旧密码——而旧密码早已遗忘。</strong></p>
+<p>三层叠加，形成死锁。解法是重置 NCSI 参数。</p>
+<h2 id="两件遗留的事"><a href="#两件遗留的事" class="headerlink" title="两件遗留的事"></a>两件遗留的事</h2><ul>
+<li><strong>BitLocker</strong>：刷机前挂起了，刷完要手动 <code>Resume-BitLocker -MountPoint &#39;C:&#39;</code>。我做了，<code>ProtectionStatus</code> 已回到 <code>On</code>，TPM 和恢复密码保护器都在。</li>
+<li><strong>Windows 激活</strong>：折腾过程中激活状态丢了（<code>LicenseStatus=5</code>，<code>0xC004F034</code>）。OEM key 是家庭中文版，当前装的是企业版，对不上。暂时不影响使用。</li>
+</ul>
+<h2 id="一句感慨"><a href="#一句感慨" class="headerlink" title="一句感慨"></a>一句感慨</h2><p>这个问题的难点不在「找到原因」，而在「让故障留下证据」。</p>
+<p>卡顿不写日志、不报错、不留痕迹，跟负载无关，跟驱动无关。所有现成的诊断工具都测不出来——不是因为工具不好，而是因为这个故障发生在它们的测量盲区里。</p>
+<p>而锁屏死循环的难点更荒诞：<strong>每个提示都是对的，但每个提示都指向错误的方向。</strong></p>
+<p>最后是靠着一堆自己写的小探针，一点一点把「整机停摆 1.2 秒」这个事实钉死的；也是靠着不再相信系统的提示、自己去问「为什么它认为我离线」，才从锁屏里爬出来的。</p>
+<p><strong>排查十几个小时，修复八条命令。</strong> 大概这就是这类问题的常态。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+      
+      
+      
+      
+        <a data-aos="zoom-in" href="/2026/11/15/windows-hitch-debug/#comments" class="article-comment-link">
+          <span class="post-comments-count waline-comment-count" data-path="/2026/11/15/windows-hitch-debug/" itemprop="commentCount"></span>
+          留言
+        </a>
+      
+      
+      
+      
+        <span data-aos="zoom-in" class="article-visitor-link">
+          <span class="waline-pageview-count" data-path="/2026/11/15/windows-hitch-debug/">0</span>
+          <em class="post-meta-item-text">阅读量</em>
+        </span>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/PowerShell/" rel="tag">PowerShell</a></li><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/Windows/" rel="tag">Windows</a></li><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/%E6%80%A7%E8%83%BD%E6%8E%92%E6%9F%A5/" rel="tag">性能排查</a></li><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/%E7%A1%AC%E4%BB%B6/" rel="tag">硬件</a></li><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/%E8%B8%A9%E5%9D%91/" rel="tag">踩坑</a></li></ul>
+
+
+    </footer>
+  </div>
+  
+  <nav id="article-nav" data-aos="fade-up">
+    
+      
+      <div class="article-nav-link-wrap left">
+        
+          
+          
+            <img data-src="/covers/268.jpg" data-sizes="auto" alt="校园网突然连不上：一个 0x525、一次版本错乱，和一串连锁反应" class="lazyload">
+          
+        
+        <a href="/2026/11/25/windows-8021x-0x525-rdsh/"></a>
+        <div class="article-nav-caption">前一篇</div>
+        <h3 class="article-nav-title">
+          
+            校园网突然连不上：一个 0x525、一次版本错乱，和一串连锁反应
+          
+        </h3>
+      </div>
+    
+    
+    
+    <div class="article-nav-link-wrap right">
+      
+        
+        
+          <img data-src="/covers/809.jpg" data-sizes="auto" alt="一些前端实现的作业项目" class="lazyload">
+        
+      
+      <a href="/2025/09/04/vite/"></a>
+      <div class="article-nav-caption">后一篇</div>
+      <h3 class="article-nav-title">
+        
+          一些前端实现的作业项目
+        
+      </h3>
+    </div>
+    
+  </nav>
+
+
+</article>
+
+
+
+
+
+
+
+
+
+  <section id="comments" data-aos="fade-up">
+    <div class="comment-header">
+      
+      
+        
+      
+      <h2 class="comment-title">说些什么吧！</h2>
+      <div class="comment-selector">
+        <div class="comment-selector-wrap">
+            
+            <div class="selector-item" data-selector="waline">
+              <span>waline</span>
+            </div>
+            
+        </div>
+      </div>
+    </div>
+    <div class="comment-content">
+      
+        <div class="comment waline-comment" data-aos="fade-up"
+          id="waline-comment">
+        </div>
+      
+    </div>
+  </section>
+
+
+</section>
+        </div>
+        <footer id="footer">
+  <div style="width: 100%; overflow: hidden">
+    <div class="footer-line"></div>
+  </div>
+  <div id="footer-info">
+    
+    <div>
+      <span class="icon-copyright"></span>
+      
+      
+      
+        2020-2026
+      
+      <span class="footer-info-sep rotate"></span>
+      清水尚辉
+    </div>
+    
+      <div>
+        基于&nbsp;<a href="https://hexo.io/" rel="noopener external nofollow noreferrer" target="_blank">Hexo</a>&nbsp;
+        Theme.<a href="https://github.com/D-Sketon/hexo-theme-reimu" rel="noopener external nofollow noreferrer" target="_blank">Reimu</a>
+      </div>
+    
+    
+      <div>
+        <span class="icon-brush"></span>
+        17.9k
+        &nbsp;|&nbsp;
+        <span class="icon-coffee"></span>
+        01:07
+      </div>
+    
+    
+    
+    
+    
+      <div>
+        <span class="icon-eye"></span>
+        <span id="busuanzi_container_site_pv">总访问量&nbsp;<span id="busuanzi_value_site_pv"></span></span>
+        &nbsp;|&nbsp;
+        <span class="icon-user"></span>
+        <span id="busuanzi_container_site_uv">总访客量&nbsp;<span id="busuanzi_value_site_uv"></span></span>
+      </div>
+    
+  </div>
+</footer>
+
+        
+          <div class="sidebar-top">
+            <div class="sidebar-top-taichi rotate"></div>
+            <div class="arrow-up"></div>
+          </div>
+        
+        <div id="mask" class="hide"></div>
+      </div>
+      <nav id="mobile-nav">
+  <div class="sidebar-wrap">
+    
+      
+        <div class="sidebar-toc-sidebar"><h3 class="toc-title">文章目录</h3>
+<div class="sidebar-toc-wrapper toc-div-class" >
+  
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A5%94%E5%AD%90%EF%BC%9A%E5%87%8C%E6%99%A8%E5%9B%9B%E7%82%B9%EF%BC%8C%E6%88%91%E5%9D%90%E5%9C%A8%E4%B8%80%E5%8F%B0%E8%BF%9B%E4%B8%8D%E5%8E%BB%E7%9A%84%E7%94%B5%E8%84%91%E5%89%8D"><span class="toc-number">1.</span> <span class="toc-text">楔子：凌晨四点，我坐在一台进不去的电脑前</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%AC%AC%E4%B8%80%E9%83%A8%E5%88%86%EF%BC%9A%E9%82%A3%E4%B8%AA%E6%AF%8F-19-%E5%88%86%E9%92%9F%E5%8D%A1%E4%B8%80%E6%AC%A1%E7%9A%84%E9%97%AE%E9%A2%98"><span class="toc-number"></span> <span class="toc-text">第一部分：那个每 19 分钟卡一次的问题</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-1-%E7%97%87%E7%8A%B6%EF%BC%9A%E4%B8%80%E5%8D%A1%E4%B8%80%E5%8D%A1%E7%9A%84%EF%BC%8C%E5%A3%B0%E9%9F%B3%E8%BF%98%E5%B8%A6%E7%88%86%E9%9F%B3"><span class="toc-number">1.</span> <span class="toc-text">1.1 症状：一卡一卡的，声音还带爆音</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-2-%E5%85%88%E6%8E%92%E9%99%A4%EF%BC%9A%E4%B8%8D%E6%98%AF%E8%B4%9F%E8%BD%BD%EF%BC%8C%E4%B8%8D%E6%98%AF%E9%A9%B1%E5%8A%A8"><span class="toc-number">2.</span> <span class="toc-text">1.2 先排除：不是负载，不是驱动</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%8B%E4%BB%B6%E6%97%A5%E5%BF%97%EF%BC%9A%E5%85%A8%E7%A9%BA"><span class="toc-number">2.1.</span> <span class="toc-text">事件日志：全空</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A3%B0%E9%9F%B3%E5%92%8C%E7%94%BB%E9%9D%A2%E6%98%AF%E5%90%8C%E4%B8%80%E4%B8%AA%E4%BA%8B%E4%BB%B6"><span class="toc-number">2.2.</span> <span class="toc-text">声音和画面是同一个事件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%9E%E7%9B%91%E6%8E%A7%E7%BA%BF%E7%A8%8B%E4%B9%9F%E8%A2%AB%E5%86%BB%E4%BD%8F"><span class="toc-number">2.3.</span> <span class="toc-text">连监控线程也被冻住</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-3-%E9%80%A0%E4%B8%80%E6%8A%8A%E5%B0%BA%E5%AD%90%EF%BC%9A%E4%B8%BA%E4%BB%80%E4%B9%88%E7%8E%B0%E6%88%90%E5%B7%A5%E5%85%B7%E5%85%A8%E9%83%BD%E4%B8%8D%E8%A1%8C"><span class="toc-number">3.</span> <span class="toc-text">1.3 造一把尺子：为什么现成工具全都不行</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%BB%E5%8A%A1%E7%AE%A1%E7%90%86%E5%99%A8%E3%80%81LatencyMon-%E4%B8%BA%E4%BB%80%E4%B9%88%E7%9C%8B%E4%B8%8D%E8%A7%81"><span class="toc-number">3.1.</span> <span class="toc-text">任务管理器、LatencyMon 为什么看不见</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#WPR-%E8%B7%91%E4%B8%8D%E8%B5%B7%E6%9D%A5"><span class="toc-number">3.2.</span> <span class="toc-text">WPR 跑不起来</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC%E4%B8%80%E4%B8%AA%E6%8E%A2%E9%92%88%E9%AA%97%E4%BA%86%E6%88%91"><span class="toc-number">3.3.</span> <span class="toc-text">第一个探针骗了我</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-4-%E7%9C%9F%E6%AD%A3%E7%9A%84%E8%AF%81%E6%8D%AE%EF%BC%9Acore0-%E7%9A%84%E4%B8%AD%E6%96%AD%E4%B8%8A%E4%B8%8B%E6%96%87%E8%A2%AB%E7%8B%AC%E5%8D%A0"><span class="toc-number">4.</span> <span class="toc-text">1.4 真正的证据：core0 的中断上下文被独占</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#ISR-%E5%8D%A0%E6%BB%A1-1-2-%E7%A7%92"><span class="toc-number">4.1.</span> <span class="toc-text">ISR 占满 1.2 秒</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%8D%E6%98%AF%E4%B8%AD%E6%96%AD%E9%A3%8E%E6%9A%B4%E2%80%94%E2%80%94%E6%81%B0%E6%81%B0%E7%9B%B8%E5%8F%8D"><span class="toc-number">4.2.</span> <span class="toc-text">不是中断风暴——恰恰相反</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8D%81%E5%85%AD%E4%B8%AA%E6%A0%B8%E5%90%8C%E6%97%B6%E5%81%9C"><span class="toc-number">4.3.</span> <span class="toc-text">十六个核同时停</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E4%B8%AA%E5%85%B3%E9%94%AE%E9%AA%8C%E8%AF%81%EF%BC%9A%E4%B8%8D%E6%98%AF%E3%80%8C%E7%B3%BB%E7%BB%9F%E6%97%B6%E9%92%9F%E5%86%BB%E4%BD%8F%E4%BA%86%E3%80%8D"><span class="toc-number">4.4.</span> <span class="toc-text">一个关键验证：不是「系统时钟冻住了」</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-5-%E6%88%91%E7%8A%AF%E7%9A%84%E4%B8%A4%E4%B8%AA%E9%94%99"><span class="toc-number">5.</span> <span class="toc-text">1.5 我犯的两个错</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%94%99%E8%AF%AF%E4%B8%80%EF%BC%9A%E6%88%91%E7%94%A8%E6%8E%A2%E9%92%88%E6%8A%8A%E9%94%AE%E9%BC%A0%E5%B9%B2%E6%B2%A1%E4%BA%86"><span class="toc-number">5.1.</span> <span class="toc-text">错误一：我用探针把键鼠干没了</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%94%99%E8%AF%AF%E4%BA%8C%EF%BC%9A%E6%88%91%E6%8A%8A%E3%80%8C19-32-%E5%88%86%E9%92%9F%E7%B2%BE%E7%A1%AE%E5%8F%AF%E9%A2%84%E6%B5%8B%E3%80%8D%E8%AF%B4%E5%BE%97%E5%A4%AA%E6%BB%A1"><span class="toc-number">5.2.</span> <span class="toc-text">错误二：我把「19.32 分钟精确可预测」说得太满</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%AC%AC%E4%BA%8C%E9%83%A8%E5%88%86%EF%BC%9A%E8%BF%BD-fTPM%EF%BC%8C%E8%BF%BD%E5%88%B0-BIOS-%E9%97%A8%E5%8F%A3"><span class="toc-number"></span> <span class="toc-text">第二部分：追 fTPM，追到 BIOS 门口</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#2-1-%E5%AB%8C%E7%96%91%E6%8E%92%E5%BA%8F"><span class="toc-number">1.</span> <span class="toc-text">2.1 嫌疑排序</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-2-%E7%AC%AC%E4%B8%80%E6%AD%A5%EF%BC%9ABIOS-%E9%87%8C%E6%89%BE%E4%B8%8D%E5%88%B0"><span class="toc-number">2.</span> <span class="toc-text">2.2 第一步：BIOS 里找不到</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-3-%E7%AC%AC%E4%BA%8C%E6%AD%A5%EF%BC%9A%E7%9B%B4%E6%8E%A5%E8%A7%A3%E5%8C%85-BIOS-%E9%95%9C%E5%83%8F%E7%9C%8B%E8%8F%9C%E5%8D%95"><span class="toc-number">3.</span> <span class="toc-text">2.3 第二步：直接解包 BIOS 镜像看菜单</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-4-%E7%AC%AC%E4%B8%89%E6%AD%A5%EF%BC%9A%E5%88%B7-BIOS-335"><span class="toc-number">4.</span> <span class="toc-text">2.4 第三步：刷 BIOS 335</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-5-%E7%AC%AC%E5%9B%9B%E6%AD%A5%EF%BC%9A%E5%88%B7%E5%AE%8C%E4%BA%86%EF%BC%8C%E8%8F%9C%E5%8D%95%E8%BF%98%E6%98%AF%E6%B2%A1%E5%87%BA%E7%8E%B0"><span class="toc-number">5.</span> <span class="toc-text">2.5 第四步：刷完了，菜单还是没出现</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%AC%AC%E4%B8%89%E9%83%A8%E5%88%86%EF%BC%9A%E5%88%B7%E5%AE%8C%E4%B9%8B%E5%90%8E%EF%BC%8C%E7%94%B5%E8%84%91%E8%BF%9B%E4%B8%8D%E5%8E%BB%E4%BA%86"><span class="toc-number"></span> <span class="toc-text">第三部分：刷完之后，电脑进不去了</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#3-1-%E6%AD%BB%E5%BE%AA%E7%8E%AF%E7%9A%84%E5%BD%A2%E7%8A%B6"><span class="toc-number">1.</span> <span class="toc-text">3.1 死循环的形状</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-2-%E6%8B%86%E8%A7%A3%EF%BC%9A%E5%85%B6%E5%AE%9E%E6%98%AF%E4%B8%89%E4%B8%AA%E9%97%AE%E9%A2%98%E5%8F%A0%E5%9C%A8%E4%B8%80%E8%B5%B7"><span class="toc-number">2.</span> <span class="toc-text">3.2 拆解：其实是三个问题叠在一起</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC%E4%B8%80%E5%B1%82%EF%BC%9APIN-%E5%87%AD%E8%AF%81%E5%A4%B1%E6%95%88"><span class="toc-number">2.1.</span> <span class="toc-text">第一层：PIN 凭证失效</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC%E4%BA%8C%E5%B1%82%EF%BC%9A%E9%87%8D%E5%BB%BA-PIN-%E9%9C%80%E8%A6%81%E5%9C%A8%E7%BA%BF%E9%AA%8C%E8%AF%81"><span class="toc-number">2.2.</span> <span class="toc-text">第二层：重建 PIN 需要在线验证</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC%E4%B8%89%E5%B1%82%EF%BC%9ANCSI-%E8%AE%A4%E4%B8%BA%E8%BF%99%E5%8F%B0%E7%94%B5%E8%84%91%E6%B2%A1%E6%9C%89%E7%BD%91"><span class="toc-number">2.3.</span> <span class="toc-text">第三层：NCSI 认为这台电脑没有网</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-3-%E6%88%91%E8%AF%95%E8%BF%87%E7%9A%84%E5%8D%81%E5%87%A0%E7%A7%8D%E6%96%B9%E6%B3%95%EF%BC%88%E6%8C%89%E6%97%B6%E9%97%B4%E9%A1%BA%E5%BA%8F%EF%BC%89"><span class="toc-number">3.</span> <span class="toc-text">3.3 我试过的十几种方法（按时间顺序）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B0%9D%E8%AF%95-7%EF%BC%9AWinRE-%E9%87%8C%E7%B3%BB%E7%BB%9F%E7%9B%98%E4%B8%8D%E6%98%AF-C"><span class="toc-number">3.1.</span> <span class="toc-text">尝试 7：WinRE 里系统盘不是 C:</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B0%9D%E8%AF%95-8%EF%BC%9A%E6%B3%A8%E5%86%8C%E8%A1%A8%E5%8A%A0%E8%BD%BD%E9%85%8D%E7%BD%AE%E5%8D%95%E5%85%83%E8%A2%AB%E6%8B%92"><span class="toc-number">3.2.</span> <span class="toc-text">尝试 8：注册表加载配置单元被拒</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B0%9D%E8%AF%95-11%E2%80%9312%EF%BC%9Autilman-%E5%90%8E%E9%97%A8-%E6%94%B9-SAM"><span class="toc-number">3.3.</span> <span class="toc-text">尝试 11–12：utilman 后门 + 改 SAM</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B0%9D%E8%AF%95-13%E2%80%9314%EF%BC%9A%E6%96%B0%E5%BB%BA%E6%9C%AC%E5%9C%B0%E8%B4%A6%E6%88%B7%EF%BC%8C%E7%84%B6%E5%90%8E%E5%8D%A1%E5%9C%A8%E5%85%B3%E8%81%94%E5%BE%AE%E8%BD%AF%E8%B4%A6%E6%88%B7"><span class="toc-number">3.4.</span> <span class="toc-text">尝试 13–14：新建本地账户，然后卡在关联微软账户</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B0%9D%E8%AF%95-15%EF%BC%9A%E6%B8%85%E7%BC%93%E5%AD%98%E5%A4%A7%E6%B3%95%EF%BC%88%E5%85%A8%E6%97%A0%E6%95%88%EF%BC%89"><span class="toc-number">3.5.</span> <span class="toc-text">尝试 15：清缓存大法（全无效）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%82%A3%E4%B8%80%E5%88%BB%E6%88%91%E6%84%8F%E8%AF%86%E5%88%B0%E8%87%AA%E5%B7%B1%E4%B8%80%E7%9B%B4%E5%9C%A8%E9%94%99%E7%9A%84%E6%96%B9%E5%90%91%E4%B8%8A"><span class="toc-number">3.6.</span> <span class="toc-text">那一刻我意识到自己一直在错的方向上</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-4-%E7%A0%B4%E5%B1%80%EF%BC%9A%E6%8A%8A%E4%B8%89%E4%B8%AA%E9%97%AE%E9%A2%98%E5%88%86%E5%BC%80%E7%9C%8B"><span class="toc-number">4.</span> <span class="toc-text">3.4 破局：把三个问题分开看</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-5-%E7%9C%9F%E6%AD%A3%E7%9A%84%E8%A7%A3%E6%B3%95"><span class="toc-number">5.</span> <span class="toc-text">3.5 真正的解法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-6-%E4%B8%BA%E4%BB%80%E4%B9%88%E8%BF%99%E4%B9%88%E9%9A%BE"><span class="toc-number">6.</span> <span class="toc-text">3.6 为什么这么难</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9B%A0%E4%B8%BA%E7%B3%BB%E7%BB%9F%E7%9A%84%E6%8F%90%E7%A4%BA%E6%98%AF%E3%80%8C%E6%AD%A3%E7%A1%AE%E4%BD%86%E6%97%A0%E7%94%A8%E3%80%8D%E7%9A%84"><span class="toc-number">6.1.</span> <span class="toc-text">因为系统的提示是「正确但无用」的</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9B%A0%E4%B8%BA%E4%B8%89%E4%B8%AA%E9%97%AE%E9%A2%98%E4%BA%92%E7%9B%B8%E6%8E%A9%E6%8A%A4"><span class="toc-number">6.2.</span> <span class="toc-text">因为三个问题互相掩护</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9B%A0%E4%B8%BA-AI-%E5%B8%AE%E4%B8%8D%E4%B8%8A%E5%BF%99"><span class="toc-number">6.3.</span> <span class="toc-text">因为 AI 帮不上忙</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%AC%AC%E5%9B%9B%E9%83%A8%E5%88%86%EF%BC%9A%E6%84%8F%E5%A4%96%E2%80%94%E2%80%94%E5%8D%A1%E9%A1%BF%E6%B6%88%E5%A4%B1%E4%BA%86"><span class="toc-number"></span> <span class="toc-text">第四部分：意外——卡顿消失了</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%94%A8%E7%BB%9F%E8%AE%A1%E8%AF%81%E6%98%8E%E5%AE%83%E7%9C%9F%E7%9A%84%E6%B6%88%E5%A4%B1%E4%BA%86"><span class="toc-number">1.</span> <span class="toc-text">用统计证明它真的消失了</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%A4%E6%8D%AE%E8%BF%AD%E4%BB%A3%EF%BC%9A%E5%AE%BD%E6%9D%BE%E5%88%A4%E6%8D%AE%E5%B7%AE%E7%82%B9%E8%AE%A9%E6%88%91%E5%BE%97%E5%87%BA%E7%9B%B8%E5%8F%8D%E7%BB%93%E8%AE%BA"><span class="toc-number">1.1.</span> <span class="toc-text">判据迭代：宽松判据差点让我得出相反结论</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B3%8A%E6%9D%BE%E6%A3%80%E9%AA%8C"><span class="toc-number">1.2.</span> <span class="toc-text">泊松检验</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%A1%BA%E4%BE%BF%E5%88%86%E6%B8%85%E4%BA%86%E4%B8%A4%E7%B1%BB%E3%80%8C%E5%8D%A1%E3%80%8D"><span class="toc-number">1.3.</span> <span class="toc-text">顺便分清了两类「卡」</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%98%E6%9C%89%E4%B8%80%E4%B8%AA%E5%8F%8D%E7%9B%B4%E8%A7%89%E7%9A%84%E5%8F%91%E7%8E%B0"><span class="toc-number">1.4.</span> <span class="toc-text">还有一个反直觉的发现</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%AC%AC%E4%BA%94%E9%83%A8%E5%88%86%EF%BC%9A%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93"><span class="toc-number"></span> <span class="toc-text">第五部分：经验总结</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%B3%E4%BA%8E%E6%8E%92%E6%9F%A5%E6%96%B9%E6%B3%95"><span class="toc-number">1.</span> <span class="toc-text">关于排查方法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%B3%E4%BA%8E%E8%87%AA%E6%95%91"><span class="toc-number">2.</span> <span class="toc-text">关于自救</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%B3%E4%BA%8E-Windows-%E5%86%85%E9%83%A8"><span class="toc-number">3.</span> <span class="toc-text">关于 Windows 内部</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%B3%E4%BA%8E-PowerShell%EF%BC%88%E8%B8%A9%E4%BA%86%E4%B8%80%E5%A0%86%E5%9D%91%EF%BC%89"><span class="toc-number">4.</span> <span class="toc-text">关于 PowerShell（踩了一堆坑）</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%90%8E%E8%AE%B0"><span class="toc-number"></span> <span class="toc-text">后记</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9C%80%E7%BB%88%E7%9A%84%E7%BB%93%E8%AE%BA"><span class="toc-number">1.</span> <span class="toc-text">最终的结论</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%A4%E4%BB%B6%E9%81%97%E7%95%99%E7%9A%84%E4%BA%8B"><span class="toc-number">2.</span> <span class="toc-text">两件遗留的事</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E5%8F%A5%E6%84%9F%E6%85%A8"><span class="toc-number">3.</span> <span class="toc-text">一句感慨</span></a></li></ol>
+  
+</div>
+</div>
+        <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.webp" data-sizes="auto" alt="清水尚辉" class="lazyload">
+  <div class="sidebar-author-name">清水尚辉</div>
+  <div class="sidebar-description">觉厨</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">5</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">1</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">7</div>
+  </div>
+</div>
+<div class="sidebar-social">
+  
+    <div class="icon-github sidebar-social-icon">
+      <a href=https://github.com/gfjdh itemprop="url" target="_blank" aria-label="github" rel="noopener external nofollow noreferrer"></a>
+    </div>
+  
+    <div class="icon-bilibili sidebar-social-icon">
+      <a href=https://space.bilibili.com/259514534 itemprop="url" target="_blank" aria-label="bilibili" rel="noopener external nofollow noreferrer"></a>
+    </div>
+  
+</div>
+<div class="sidebar-menu">
+  
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          
+            &#xe62b;
+          
+        </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          
+            &#xe62b;
+          
+        </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          
+            &#xe62b;
+          
+        </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          
+            &#xe62b;
+          
+        </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+    
+  
+</div>
+</div>
+      
+    
+  </div>
+  
+    
+      <div class="sidebar-btn-wrapper">
+        <div class="sidebar-toc-btn current"></div>
+        <div class="sidebar-common-btn"></div>
+      </div>
+    
+  
+</nav>
+
+    </div>
+    
+      <div class="site-search">
+        <div class="reimu-popup popup">
+          <div class="reimu-search">
+            <div class="reimu-search-input-icon"></div>
+            <div class="reimu-search-input" id="reimu-search-input"></div>
+            <div class="popup-btn-close"></div>
+          </div>
+          <div class="reimu-results">
+            <div id="reimu-stats"></div>
+            <div id="reimu-hits"></div>
+            <div id="reimu-pagination" class="reimu-pagination"></div>
+          </div>
+          <img class="reimu-bg" src="/images/reimu.png"/>
+        </div>
+      </div>
+    
+    
+    
+    
+<script src="https://npm.webcache.cn/lazysizes@5.3.2/lazysizes.min.js" integrity="sha384-3gT&#x2F;vsepWkfz&#x2F;ff7PpWNUeMzeWoH3cDhm&#x2F;A8jM7ouoAK0&#x2F;fP&#x2F;9bcHHR5kHq2nf+e" crossorigin="anonymous"></script>
+
+
+<script src="https://npm.webcache.cn/clipboard@2.0.11/dist/clipboard.min.js" integrity="sha384-J08i8An&#x2F;QeARD9ExYpvphB8BsyOj3Gh2TSh1aLINKO3L0cMSH2dN3E22zFoXEi0Q" crossorigin="anonymous"></script>
+
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+  
+<script src="/js/aos.js"></script>
+
+  <script>
+    var aosInit = () => {
+      AOS.init({
+        duration: 1000,
+        easing: "ease",
+        once: true,
+        offset: 50,
+      });
+    };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', aosInit);
+    } else {
+      aosInit();
+    }
+  </script>
+
+
+
+<script src="/js/pjax_script.js" data-pjax></script>
+
+
+
+  
+<script src="/js/generator_search.js" defer></script>
+
+
+
+
+
+
+  
+<script src="https://npm.webcache.cn/mouse-firework@0.1.1/dist/index.umd.js" integrity="sha384-8LyaidD9GPxQQgLJO&#x2F;WRw&#x2F;O2h3BoNq&#x2F;ApI&#x2F;ecpvM6RsrCz2qP2ppBXUKihP4V&#x2F;2d" crossorigin="anonymous"></script>
+
+  <script>
+    window.firework && window.firework(JSON.parse('{"excludeElements":["a","button"],"particles":[{"shape":"circle","move":["emit"],"easing":"easeOutExpo","colors":["var(--red-1)","var(--red-2)","var(--red-3)","var(--red-4)"],"number":20,"duration":[1200,1800],"shapeOptions":{"radius":[16,32],"alpha":[0.3,0.5]}},{"shape":"circle","move":["diffuse"],"easing":"easeOutExpo","colors":["var(--red-0)"],"number":1,"duration":[1200,1800],"shapeOptions":{"radius":20,"alpha":[0.2,0.5],"lineWidth":6}}]}'))
+  </script>
+
+
+
+
+
+
+
+
+
+
+<div id="lazy-script">
+  <div>
+    
+      
+      
+      <script data-pjax>
+        window.REIMU_POST = {
+          author: "清水尚辉",
+          title: "刷个 BIOS，我把自己锁在了电脑外面——一次 Windows 卡顿排查与自救全记录",
+          url: "https://gfjdh.github.io/2026/11/15/windows-hitch-debug/",
+          excerpt: "",
+          description: "",
+          stripContent: " 代笔说明 这篇文章由 AI（DeepSeek）根据我提供的排查日志、系统数据和对话记录整理成文，不是我亲手写的。文中第一人称的「我」指我本人，所有事实、数字、时间线和踩过的坑都来自实际发生的过程；AI 负责组织、润色和补全技术解释。 如果你觉得哪里写得不对，那多半是 AI 的锅，不是事实的锅。   楔子：凌晨四点，我坐在一台进不去的电脑前我的笔记本是 ASUS ROG Strix G713QY，Ryzen 9 5900HX（8 核 16 线程），32GB 内存，RX 6800M 独显加核显，双",
+          date: "Sun Nov 15 2026 16:45:00 GMT+0800",
+          updated: "Sun Nov 15 2026 16:57:56 GMT+0800",
+          cover: "/images/banner.webp",
+        };
+      </script>
+       
+    
+    
+      
+        
+<script src="/js/insert_highlight.js" data-pjax></script>
+
+        
+      
+    
+    
+      <script type="module" data-pjax>
+        const PhotoSwipeLightbox = (await safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe-lightbox.esm.min.js", "sha384-DiL6M/gG+wmTxmCRZyD1zee6lIhawn5TGvED0FOh7fXcN9B0aZ9dexSF/N6lrZi/")).default;
+        
+        const pswp = () => {
+          if (_$$('.article-entry a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-entry',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+            }).init();
+          }
+          if(_$$('.article-gallery a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-gallery',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+            }).init();
+          }
+          window.lightboxStatus = 'done';
+          window.removeEventListener('lightbox:ready', pswp);
+        }
+        if(window.lightboxStatus === 'ready') {
+          pswp()
+        } else {
+          window.addEventListener('lightbox:ready', pswp);
+        }
+      </script>
+      
+        
+
+
+
+
+
+
+
+
+<script data-pjax>
+  var loadScript = (src, integrity) => {
+    const script = document.createElement('script');
+    script.src = src;
+    if (integrity) script.integrity = integrity;
+    script.crossOrigin = 'anonymous';
+    return script;
+  };
+
+  var commentConfigKeys = ['valine', 'waline', 'twikoo', 'gitalk', 'giscus'];
+  var commentConfig = {
+    valine: {
+      enable: false,
+      load: () => {
+        const container = document.querySelector('.valine-comment');
+        if (!container) return;
+        container.style.display = 'block';
+
+        const script = loadScript(
+          'https://npm.webcache.cn/valine@1.5.1/dist/Valine.min.js',
+          'sha384-3ma91AExDeMAZ1rjTjaP8V2A2obQE+s5ltKRwYlwdpArz9xVbp0tF3b0VV2ACNPn'
+        );
+        script.onload = () => {
+          var GUEST_INFO = ['nick', 'mail', 'link'];
+          var guest_info = 'nick,mail,link'.split(',').filter((item) => {
+            return GUEST_INFO.indexOf(item) > -1
+          });
+          var recordIP = JSON.parse('true');
+          var highlight = JSON.parse('true');
+          var visitor = JSON.parse('false');
+          var serverURLs = undefined;
+
+          if (window.Valine) {
+            new Valine({
+              el: '.valine-comment',
+              appId: "",
+              appKey: "",
+              placeholder: "Just go go",
+              pageSize: '10',
+              avatar: 'mp',
+              lang: document.documentElement.lang || 'en',
+              recordIP: recordIP,
+              highlight: highlight,
+              visitor: visitor,
+              requiredFields: guest_info,
+              path: window.location.pathname,
+              serverURLs
+            });
+          }
+        };
+        document.head.appendChild(script);
+      }
+    },
+    waline: {
+      enable: true,
+      load: async () => {
+        const container = document.querySelector('.waline-comment');
+        if (!container) return;
+        container.style.display = 'block';
+
+        let walineInit;
+        const walineCdn = 'https://npm.webcache.cn/@waline/client@2.15.8/dist/waline.mjs';
+        const walineIntegrity = 'sha384-9sbqJjrfGjbkI6/PI4nU/MvBfEmkkPC4YK9I4zBeMIf1CVCZdCMH/KinBEAZII/5';
+
+        const module = await safeImport(walineCdn, walineIntegrity);
+        walineInit = module.init;
+
+        window.walineInstance = walineInit({
+          el: '.waline-comment',
+          serverURL: 'https://gfjdh-comment.vercel.app/',
+          lang: document.documentElement.lang || 'en',
+          locale: {},
+          emoji: ["https://unpkg.com/@waline/emojis@1.2.0/weibo","https://unpkg.com/@waline/emojis@1.2.0/alus","https://unpkg.com/@waline/emojis@1.2.0/bilibili","https://unpkg.com/@waline/emojis@1.2.0/qq","https://unpkg.com/@waline/emojis@1.2.0/tieba","https://unpkg.com/@waline/emojis@1.2.0/tw-emoji"],
+          meta: ["nick","mail","link"],
+          requiredMeta: ["nick","mail"],
+          wordLimit: JSON.parse('0'),
+          comment: true,
+          pageSize: JSON.parse('10'),
+          dark: 'html[data-theme="dark"]',
+          pageview: JSON.parse('true'),
+        });
+      }
+    },
+    twikoo: {
+      enable: false,
+      load: () => {
+        const container = document.querySelector('.twikoo-comment');
+        if (!container) return;
+        container.style.display = 'block';
+
+        const script = loadScript(
+          'https://npm.webcache.cn/twikoo@1.6.44/dist/twikoo.all.min.js',
+          'sha384-kwWLC0HjeZZnVPqCJ1AncI8tsk+kQqF9TbAmCclcc9Z0hGkfgHRzeQZxmdmZhE0K'
+        );
+
+        script.onload = () => {
+          if (window.twikoo) {
+            twikoo.init({
+              envId: '',
+              el: '.twikoo-comment',
+              region: '',
+              lang: document.documentElement.lang || 'en',
+            });
+
+            twikoo.getCommentsCount({
+              envId: '',
+              region: '',
+              urls: [
+                '/about/index.html'
+              ],
+              includeReply: false
+            }).then((res) => {
+              _$('.twikoo-comment-count').innerText = res[0].count;
+            }).catch((err) => {
+              console.error(err);
+            });
+          }
+        } 
+        document.head.appendChild(script);
+      }
+    },
+    gitalk: {
+      enable: false,
+      load: () => {
+        const container = document.querySelector('.gitalk-comment');
+        if (!container) return;
+        container.style.display = 'block';
+
+        const script = loadScript(
+          'https://npm.webcache.cn/gitalk@1.8.0/dist/gitalk.min.js',
+          'sha384-kspnZUWBoSWwoJHa0hBCXYbHGbhvU/lcEH5O8eVbSDhbPwsiVUTp/aGX/z/5EuMA'
+        );
+
+        script.onload = () => {
+          if (false) {
+            const md5Script = loadScript(
+              'https://npm.webcache.cn/blueimp-md5@2.19.0/js/md5.min.js',
+              'sha384-JmVtRz6RWiXnA14QbIOJzPuU3MidULOpBP66deeLLyyoF4Tr/gZlbkHkL6vTthxH'
+            );
+            md5Script.onload = initGitalk;
+            document.head.appendChild(md5Script);
+          } else {
+            initGitalk();
+          }
+        }
+        document.head.appendChild(script);
+
+        function initGitalk() {
+          var gitalkId = location.pathname;
+          var gitalk = new Gitalk({
+            clientID: '',
+            clientSecret: '',
+            repo: '',
+            owner: '',
+            admin: null,
+            id: gitalkId,
+            distractionFreeMode: false,
+            language: document.documentElement.lang || 'en',
+          })
+          gitalk.render('gitalk-comment');
+        }
+      }
+    },
+    giscus: {
+      enable: false,
+      load: () => {
+        const container = document.querySelector('.giscus-comment');
+        if (!container) return;
+        container.style.display = 'block';
+
+        // 删除可能已存在的 giscus 脚本和 iframe
+        const existingScript = container.querySelector('script[src*="giscus.app/client.js"]');
+        if (existingScript) existingScript.remove();
+        const existingFrame = document.querySelector('iframe.giscus-frame');
+        if (existingFrame) existingFrame.remove();
+
+        const giscusScript = document.createElement('script');
+        const domMode = document.documentElement.getAttribute("data-theme");
+
+        const docLang = document.documentElement.lang || 'en';
+        const langBase = docLang.split('-')[0];
+        const supportedLangs = ['ar', 'be', 'bg', 'ca', 'cs', 'da', 'de', 'en', 
+        'eo', 'es', 'eu', 'fa', 'fr', 'gr', 'hbs', 'he', 'hu', 'id', 'it', 'ja', 
+        'kh', 'ko', 'nl', 'pl', 'pt', 'ro', 'ru', 'th', 'tr', 'uk', 'uz', 'vi', 'zh-CN', 'zh-HK', 'zh-TW'];
+        const giscusLang = supportedLangs.includes(docLang) ? docLang : supportedLangs.includes(langBase) ? langBase : 'en';
+
+        giscusScript.src = 'https://giscus.app/client.js';
+        giscusScript.setAttribute('data-repo', '');
+        giscusScript.setAttribute('data-repo-id', '');
+        giscusScript.setAttribute('data-category', ''); 
+        giscusScript.setAttribute('data-category-id', '');
+        giscusScript.setAttribute('data-mapping', '0');
+        giscusScript.setAttribute('data-strict', '0');
+        giscusScript.setAttribute('data-reactions-enabled', '1');
+        giscusScript.setAttribute('data-emit-metadata', '0');
+        giscusScript.setAttribute('data-input-position', 'bottom');
+        giscusScript.setAttribute('data-theme', domMode === 'dark' ? 'dark' : 'light');
+        giscusScript.setAttribute('data-lang', giscusLang);
+        giscusScript.setAttribute('crossorigin', 'anonymous');
+        giscusScript.async = true;
+        container.appendChild(giscusScript);
+        document.body.addEventListener('light-theme-set', () => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: { setConfig: { theme: 'light' } } }, 'https://giscus.app');
+        });
+        document.body.addEventListener('dark-theme-set', () => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: { setConfig: { theme: 'dark' } } }, 'https://giscus.app');
+        });
+      }
+    }
+  }
+  commentConfig.enable = commentConfigKeys.some(key => commentConfig[key].enable);
+
+  var defaultComment = '';
+  if (commentConfig.enable) {
+    // 1. 首先检查localStorage中是否有保存的评论类型
+    var savedCommentType = localStorage.getItem('commentType');
+    
+    // 2. 如果localStorage中有值且对应的评论系统可用，就使用它
+    if (savedCommentType) {
+      if (commentConfig[savedCommentType]?.enable) {
+        defaultComment = savedCommentType;
+      }
+    }
+    
+    // 3. 如果localStorage无效，检查配置的默认评论系统
+    if (!defaultComment) {
+      var configDefault = 'waline';
+      if (commentConfig[configDefault]?.enable) {
+        defaultComment = configDefault;
+      }
+    }
+    
+    // 4. 如果前两项都无效，按指定顺序找到第一个可用的评论系统
+    if (!defaultComment) {
+      defaultComment = commentConfigKeys.find(sys => commentConfig[sys].enable) || '';
+    }
+  }
+  function loadComments() {
+    if (!commentConfig.enable) return;
+    // 评论组件加载状态跟踪
+    const loadedComments = {
+      valine: false,
+      waline: false,
+      twikoo: false,
+      gitalk: false,
+      giscus: false
+    };
+
+    // 隐藏所有评论容器
+    const hideAllComments = () => {
+      const commentContainers = document.querySelectorAll('.comment');
+      commentContainers.forEach(container => {
+        container.style.display = 'none';
+      });
+    };
+
+    // 按需加载评论系统
+    const loadCommentSystem = (type) => {
+      if (loadedComments[type]) {
+        // 如果已加载，只需显示对应容器
+        document.querySelector(`.${type}-comment`).style.display = 'block';
+        return;
+      }
+
+      // 根据类型加载对应的脚本
+      commentConfig[type]?.load();
+      loadedComments[type] = true;
+    };
+
+    // 评论组件选择器
+    const changeActiveCommentItems = (item) => {
+      const commentItems = document.querySelectorAll('.selector-item');
+      for (let i = 0; i < commentItems.length; i++) {
+        commentItems[i].classList.remove('active');
+      }
+      item.classList.add('active');
+
+      // 获取要加载的评论系统类型
+      const commentType = item.getAttribute('data-selector');
+
+      // 隐藏所有评论系统
+      hideAllComments();
+
+      // 加载选中的评论系统
+      loadCommentSystem(commentType);
+    };
+
+    const commentInit = () => {
+      // 评论组件选择器点击事件
+      const commentItems = document.querySelectorAll('.selector-item');
+      for (let item of commentItems) {
+        item.addEventListener('click', () => {
+          // 保存选择器状态
+          const commentType = item.getAttribute('data-selector');
+          window.localStorage.setItem('commentType', commentType);
+          // 切换选中状态
+          changeActiveCommentItems(item);
+        });
+      }
+
+      // 检查是否需要加载默认评论系统
+      if (defaultComment) {
+        const defaultSelectorItem = document.querySelector(`[data-selector="${defaultComment}"]`);
+        if (!defaultSelectorItem) return;
+        defaultSelectorItem.style.display = 'block';
+        defaultSelectorItem.classList.add('active');
+        loadCommentSystem(defaultComment);
+      }
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', commentInit);
+    } else {
+      commentInit();
+    }
+  };
+  loadComments();
+</script>
+
+      
+    
+  </div>
+</div>
+
+
+  <script>
+    console.log(String.raw`%c 
+ ______     ______     __     __    __     __  __    
+/\  == \   /\  ___\   /\ \   /\ "-./  \   /\ \/\ \   
+\ \  __<   \ \  __\   \ \ \  \ \ \-./\ \  \ \ \_\ \  
+ \ \_\ \_\  \ \_____\  \ \_\  \ \_\ \ \_\  \ \_____\ 
+  \/_/ /_/   \/_____/   \/_/   \/_/  \/_/   \/_____/ 
+                                                  
+`,'color: #ff5252;')
+    console.log('%c Theme.Reimu v' + '1.9.1' + ' %c https://github.com/D-Sketon/hexo-theme-reimu ', 'color: white; background: #ff5252; padding:5px 0;', 'padding:4px;border:1px solid #ff5252;')
+  </script>
+  
+
+
+
+  
+<script src="https://npm.webcache.cn/busuanzi@2.3.0/bsz.pure.mini.js" integrity="sha384-0M75wtSkhjIInv4coYlaJU83+OypaRCIq2SukQVQX04eGTCBXJDuWAbJet56id+S" crossorigin="anonymous" async></script>
+
+
+
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      for (let registration of registrations) {
+        registration.unregister();
+      }
+    });
+  }
+</script>
+
+
+
+
+
+
+
+
+
+    
+  </body>
+  </html>
+
